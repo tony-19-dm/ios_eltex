@@ -11,7 +11,7 @@ var activePrice: Double? = nil
 
 let valute = valutes.randomElement()!
 
-func decisionBot(price: Double) -> String{
+func decisionBot(price: Double) -> String {
     if price < 65.0 {
         return "buying"
     } else if price > 85.0 {
@@ -34,7 +34,7 @@ for _ in 1...iterations {
             balance -= currentPrice
         }
     case "selling":
-        if activePrice != nil{
+        if activePrice != nil {
             let purchasePrice = activePrice!
             let income = currentPrice - purchasePrice
             balance += currentPrice
