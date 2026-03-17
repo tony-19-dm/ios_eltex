@@ -12,31 +12,16 @@ struct Trade {
     var canToSell: Bool
 }
 
-protocol GenerateTradeProtocol {
-    var iterations: Int { get set }
-    var balance: Double { get set }
-    var minPrice: Double { get }
-    var maxPrice: Double { get }
-    var activePrice: Double? { get }
-    
-    func decisionBot(price: Double, canToSell: Bool) -> String
-    func start()
-}
+class TradeBot {
+    private let iterations: Int = 50
 
-extension GenerateTradeProtocol {
-    func formatPrice(_ price: Double) -> String {
-        return String(format: "%.2f", price)
-    }
-}
+    private var balance: Double = 10000.0
+    private let minPrice: Double = 50.0
+    private let maxPrice: Double = 100.0
 
-class TradeBot: GenerateTradeProtocol {
-    internal var iterations: Int = 50
-    internal var balance: Double = 10000.0
-    internal let minPrice: Double = 50.0
-    internal let maxPrice: Double = 100.0
-    internal var activePrice: Double? = nil
+    private var activePrice: Double? = nil
     
-    func decisionBot(price: Double, canToSell: Bool) -> String {
+    private func decisionBot(price: Double, canToSell: Bool) -> String {
         if !canToSell && price < 65.0 {
             return "buying"
         } else if canToSell && price > 85.0 {
@@ -47,13 +32,13 @@ class TradeBot: GenerateTradeProtocol {
     }
     
     func start() {
-        var valute: Currency = .rubble
+        let valute: Currency = .dollar
         var trade = Trade(currency: valute, price: 0.0, canToSell: false)
         for _ in 1...iterations {
             let currentPrice = Double.random(in: minPrice...maxPrice)
             trade.price = currentPrice
             let decision = decisionBot(price: trade.price, canToSell: trade.canToSell)
-            print("\(formatPrice(trade.price)) \(valute) - \(decision)")
+            print("\(String(format: "%.2f", trade.price)) \(valute) - \(decision)")
             
             switch decision {
             case "buying":
@@ -68,14 +53,14 @@ class TradeBot: GenerateTradeProtocol {
                     let purchasePrice = activePrice!
                     let income = trade.price - purchasePrice
                     balance += trade.price
-                    print("продажа FROM = \(String(format: "%.2f", purchasePrice)) -> TO = \(formatPrice(trade.price)), INCOME = +\(formatPrice(income))")
+                    print("продажа FROM = \(String(format: "%.2f", purchasePrice)) -> TO = \(String(format: "%.2f", trade.price)), INCOME = +\(String(format: "%.2f", income))")
                     trade.canToSell = false
                     activePrice = nil
                 }
             default:
                 break
             }
-            print("Balance: \(formatPrice(balance))")
+            print("Balance: \(String(format: "%.2f", balance))")
         }
     }
 }
