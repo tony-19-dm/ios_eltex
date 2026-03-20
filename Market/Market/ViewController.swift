@@ -81,7 +81,7 @@ private extension ViewController {
     func addTextView() {
         textView.isEditable = false
         textView.font = UIFont.monospacedSystemFont(ofSize: 12, weight: .regular)
-        textView.frame = CGRect(x: 16, y: 0, width: verticalStackView.bounds.width - 32, height: verticalStackView.bounds.height / 2)
+        textView.frame = CGRect(x: 0, y: 0, width: verticalStackView.bounds.width, height: verticalStackView.bounds.height / 2)
         textView.backgroundColor = .secondarySystemBackground
     }
     
