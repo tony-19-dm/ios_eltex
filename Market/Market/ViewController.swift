@@ -181,7 +181,6 @@ private extension ViewController {
     
     func makeTextViewConstraints() {
         textView.translatesAutoresizingMaskIntoConstraints = false
-        
         NSLayoutConstraint.activate([
             NSLayoutConstraint(item: textView, attribute: .top, relatedBy: .equal, toItem: scrollView, attribute: .top, multiplier: 1, constant: 0),
             NSLayoutConstraint(item: textView, attribute: .leading, relatedBy: .equal, toItem: scrollView, attribute: .leading, multiplier: 1, constant: 0),
