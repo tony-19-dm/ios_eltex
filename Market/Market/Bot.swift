@@ -46,7 +46,7 @@ extension GenerateTradeProtocol {
         return formatPrice(balance)
     }
     
-    func getValute() -> String {
+    func getCurrency() -> String {
         return currency.rawValue
     }
 }
@@ -105,6 +105,3 @@ final class TradeBot: GenerateTradeProtocol {
         return history
     }
 }
-
-//var tradeBot = TradeBot()
-//tradeBot.start()
