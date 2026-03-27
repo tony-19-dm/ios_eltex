@@ -17,7 +17,7 @@ class ViewController: UIViewController {
     private var label_4 = UILabel()
     private let button = UIButton()
     
-    private let tableView:UITableView = UITableView()
+    private let tableView: UITableView = UITableView()
     
     private let emptyDataLabel = UILabel()
     
