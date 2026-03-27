@@ -15,7 +15,7 @@ enum Currency: String {
 }
 
 // MARK: - Enum of decisions
-enum Decision: String, CaseIterable {
+enum Decision: String {
     case buying = "buying"
     case selling = "selling"
     case ignoring = "ignoring"

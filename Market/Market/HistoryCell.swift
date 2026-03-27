@@ -40,7 +40,7 @@ final class HistoryCell: UITableViewCell {
 }
 
 private extension HistoryCell {
-    func updateUI(){
+    func updateUI() {
         guard let currentOperatiionUnwrapped = currentOperatiion else { return }
         historyLabel.text = currentOperatiionUnwrapped.text
         
