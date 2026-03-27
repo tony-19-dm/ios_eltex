@@ -16,15 +16,20 @@ class ViewController: UIViewController {
     private var label_3 = UILabel()
     private var label_4 = UILabel()
     private let button = UIButton()
-    private let scrollView = UIScrollView()
-    private let textView = UITextView()
+    
+    private let tableView:UITableView = UITableView()
     
     private let emptyDataLabel = UILabel()
     
     private var tradeBot = TradeBot()
     private var startBalanse: Double = 0.0
     private var totalBalance: Double = 0.0
-    private var history: String = ""
+    
+    private var history: [TradeOperatiion] = [] {
+        didSet {
+            tableView.reloadData()
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,21 +40,22 @@ class ViewController: UIViewController {
         addStackView()
         addLabel()
         addEmptyDataLabel()
-        addScrollView()
-        addTextView()
+        addTableView()
         addButton()
     
         makeStackViewConstraints()
         makeButtonConstraints()
         makeEmptyDataLabelConstraints()
-        makeScrollViewConstraints()
-        makeTextViewConstraints()
+        makeTableViewConstraints()
         
         showEmptyDataState()
     }
     
     func setupUI() {
         view.backgroundColor = .systemBackground
+        
+        tableView.register(HistoryCell.self, forCellReuseIdentifier: HistoryCell.identifier)
+        tableView.dataSource = self
     }
     
     // MARK: - Initialization trading bot
@@ -66,26 +72,42 @@ class ViewController: UIViewController {
     // MARK: - Start trading
     func run() {
         startBalanse = tradeBot.balance
-        history = tradeBot.start()
+        history = tradeBot.generateHistory()
         totalBalance = tradeBot.balance
         let totalIncome = totalBalance - startBalanse
         let incomePersent = totalIncome / startBalanse * 100
         label_2.text = tradeBot.returnStringBalance()
         label_3.text = tradeBot.getCurrency()
         label_4.text = "+ \(totalIncome.formatToString()) (\(incomePersent.formatToString())%)"
-        textView.text = history
         
         showData()
     }
     
     private func showEmptyDataState() {
         emptyDataLabel.isHidden = false
-        scrollView.isHidden = true
+        tableView.isHidden = true
     }
     
     private func showData() {
         emptyDataLabel.isHidden = true
-        scrollView.isHidden = false
+        tableView.isHidden = false
+    }
+}
+
+// MARK: - TableView extension
+extension ViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return history.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if let cell = tableView.dequeueReusableCell(withIdentifier: HistoryCell.identifier),
+           let historyCell = cell as? HistoryCell {
+            let historyText = history[indexPath.row]
+            historyCell.currentOperatiion = historyText
+            return historyCell
+        }
+        return UITableViewCell()
     }
 }
 
@@ -122,16 +144,8 @@ private extension ViewController {
         view.addSubview(emptyDataLabel)
     }
     
-    func addScrollView() {
-        view.addSubview(scrollView)
-        scrollView.addSubview(textView)
-    }
-    
-    func addTextView() {
-        textView.isEditable = false
-        textView.font = UIFont.monospacedSystemFont(ofSize: 12, weight: .regular)
-        textView.backgroundColor = .secondarySystemBackground
-        textView.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+    func addTableView() {
+        view.addSubview(tableView)
     }
     
     func addButton () {
@@ -169,25 +183,13 @@ private extension ViewController {
         ])
     }
     
-    func makeScrollViewConstraints() {
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
+    func makeTableViewConstraints() {
+        tableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            NSLayoutConstraint(item: scrollView, attribute: .top, relatedBy: .equal, toItem: verticalStackView, attribute: .bottom, multiplier: 1, constant: 16),
-            NSLayoutConstraint(item: scrollView, attribute: .leading, relatedBy: .equal, toItem: view.safeAreaLayoutGuide, attribute: .leading, multiplier: 1, constant: 16),
-            NSLayoutConstraint(item: scrollView, attribute: .trailing, relatedBy: .equal, toItem: view.safeAreaLayoutGuide, attribute: .trailing, multiplier: 1, constant: -16),
-            NSLayoutConstraint(item: scrollView, attribute: .bottom, relatedBy: .equal, toItem: button, attribute: .top, multiplier: 1, constant: -16)
-        ])
-    }
-    
-    func makeTextViewConstraints() {
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            NSLayoutConstraint(item: textView, attribute: .top, relatedBy: .equal, toItem: scrollView, attribute: .top, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: textView, attribute: .leading, relatedBy: .equal, toItem: scrollView, attribute: .leading, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: textView, attribute: .trailing, relatedBy: .equal, toItem: scrollView, attribute: .trailing, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: textView, attribute: .bottom, relatedBy: .equal, toItem: scrollView, attribute: .bottom, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: textView, attribute: .width, relatedBy: .equal, toItem: scrollView, attribute: .width, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: textView, attribute: .height, relatedBy: .equal, toItem: scrollView, attribute: .height, multiplier: 1, constant: 0)
+            tableView.topAnchor.constraint(equalTo: verticalStackView.bottomAnchor, constant: 16),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tableView.bottomAnchor.constraint(equalTo: button.topAnchor, constant: -16)
         ])
     }
     

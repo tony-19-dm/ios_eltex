@@ -15,7 +15,7 @@ enum Currency: String {
 }
 
 // MARK: - Enum of decisions
-enum Decision: String {
+enum Decision: String, CaseIterable {
     case buying = "buying"
     case selling = "selling"
     case ignoring = "ignoring"
@@ -38,7 +38,7 @@ protocol GenerateTradeProtocol {
     var activePrice: Double? { get }
     
     func decisionBot(price: Double, canToSell: Bool) -> Decision
-    func start() -> String
+    func generateHistory() -> [TradeOperatiion]
 }
 
 // MARK: - Formatting extension
@@ -78,15 +78,20 @@ final class TradeBot: GenerateTradeProtocol {
         }
     }
     
-    func start() -> String {
+    func generateHistory() -> [TradeOperatiion] {
+        var history: [TradeOperatiion] = []
         var trade = Trade(currency: currency, price: 0.0, canToSell: false)
-        var history: String = ""
         for _ in 0...iterations {
             let currentPrice = Double.random(in: minPrice...maxPrice)
             trade.price = currentPrice
             let decision = decisionBot(price: trade.price, canToSell: trade.canToSell)
-            history += "\((trade.price).formatToString())\(currency) - \(decision.rawValue)\n"
-            
+            let operationText = "\((trade.price).formatToString()) \(currency) - \(decision.rawValue)"
+            let historyText = TradeOperatiion(
+                id: UUID(),
+                text: operationText,
+                operation: decision
+            )
+            history.append(historyText)
             switch decision {
             case .buying:
                 guard activePrice == nil else { continue }
@@ -100,8 +105,13 @@ final class TradeBot: GenerateTradeProtocol {
                     let purchasePrice = activePriceUnwrapped
                     let income = trade.price - purchasePrice
                     balance += trade.price
-                    history += ("ПРОДАЖА:\n")
-                    history += ("FROM = \(purchasePrice.formatToString()) -> TO = \((trade.price).formatToString()), INCOME = +\(income.formatToString())\n")
+                    let text = "FROM = \(purchasePrice.formatToString()) -> TO = \((trade.price).formatToString()), INCOME = +\(income.formatToString())"
+                    let historyText = TradeOperatiion(
+                        id: UUID(),
+                        text: text,
+                        operation: decision
+                    )
+                    history.append(historyText)
                     trade.canToSell = false
                     activePrice = nil
                 }
