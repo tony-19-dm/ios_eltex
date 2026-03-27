@@ -7,24 +7,28 @@
 
 import Foundation
 
+// MARK: - Enum of currencies
 enum Currency: String {
     case rubble = "ruble"
     case dollar = "dollar"
     case euro = "euro"
 }
 
+// MARK: - Enum of decisions
 enum Decision: String {
     case buying = "buying"
     case selling = "selling"
     case ignoring = "ignoring"
 }
 
+// MARK: - Tade structure
 struct Trade {
     let currency: Currency
     var price: Double
     var canToSell: Bool
 }
 
+// MARK: - Protocol for TradeBot
 protocol GenerateTradeProtocol {
     var currency: Currency { get }
     var iterations: Int { get set }
@@ -37,13 +41,17 @@ protocol GenerateTradeProtocol {
     func start() -> String
 }
 
-extension GenerateTradeProtocol {
-    func formatPrice(_ price: Double) -> String {
-        return String(format: "%.2f", price)
+// MARK: - Formatting extension
+extension Double {
+    func formatToString() -> String {
+        return String(format: "%.2f", self)
     }
-    
+}
+
+// MARK: - GenerateTradeProtocol extensions
+extension GenerateTradeProtocol {
     func returnStringBalance() -> String {
-        return formatPrice(balance)
+        return balance.formatToString()
     }
     
     func getCurrency() -> String {
@@ -51,6 +59,7 @@ extension GenerateTradeProtocol {
     }
 }
 
+// MARK: - Final class
 final class TradeBot: GenerateTradeProtocol {
     let currency: Currency = .rubble
     var iterations: Int = 50
@@ -76,7 +85,7 @@ final class TradeBot: GenerateTradeProtocol {
             let currentPrice = Double.random(in: minPrice...maxPrice)
             trade.price = currentPrice
             let decision = decisionBot(price: trade.price, canToSell: trade.canToSell)
-            history += "\(formatPrice(trade.price)) \(currency) - \(decision.rawValue)\n"
+            history += "\((trade.price).formatToString())\(currency) - \(decision.rawValue)\n"
             
             switch decision {
             case .buying:
@@ -92,7 +101,7 @@ final class TradeBot: GenerateTradeProtocol {
                     let income = trade.price - purchasePrice
                     balance += trade.price
                     history += ("ПРОДАЖА:\n")
-                    history += ("FROM = \(String(format: "%.2f", purchasePrice)) -> TO = \(formatPrice(trade.price)), INCOME = +\(formatPrice(income))\n")
+                    history += ("FROM = \(purchasePrice.formatToString()) -> TO = \((trade.price).formatToString()), INCOME = +\(income.formatToString())\n")
                     trade.canToSell = false
                     activePrice = nil
                 }
