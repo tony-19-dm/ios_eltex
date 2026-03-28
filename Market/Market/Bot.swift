@@ -37,13 +37,15 @@ protocol GenerateTradeProtocol {
     func start() -> String
 }
 
-extension GenerateTradeProtocol {
-    func formatPrice(_ price: Double) -> String {
-        return String(format: "%.2f", price)
+extension Double {
+    func formatToString() -> String {
+        return String(format: "%.2f", self)
     }
-    
+}
+
+extension GenerateTradeProtocol {
     func returnStringBalance() -> String {
-        return formatPrice(balance)
+        return balance.formatToString()
     }
     
     func getCurrency() -> String {
@@ -76,7 +78,7 @@ final class TradeBot: GenerateTradeProtocol {
             let currentPrice = Double.random(in: minPrice...maxPrice)
             trade.price = currentPrice
             let decision = decisionBot(price: trade.price, canToSell: trade.canToSell)
-            history += "\(formatPrice(trade.price)) \(currency) - \(decision.rawValue)\n"
+            history += "\((trade.price).formatToString()) \(currency) - \(decision.rawValue)\n"
             
             switch decision {
             case .buying:
@@ -92,7 +94,7 @@ final class TradeBot: GenerateTradeProtocol {
                     let income = trade.price - purchasePrice
                     balance += trade.price
                     history += ("ПРОДАЖА:\n")
-                    history += ("FROM = \(String(format: "%.2f", purchasePrice)) -> TO = \(formatPrice(trade.price)), INCOME = +\(formatPrice(income))\n")
+                    history += ("FROM = \(purchasePrice.formatToString()) -> TO = \((trade.price).formatToString()), INCOME = +\(income.formatToString())\n")
                     trade.canToSell = false
                     activePrice = nil
                 }

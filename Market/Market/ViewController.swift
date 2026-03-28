@@ -60,7 +60,7 @@ final class ViewController: UIViewController {
         let incomePersent = totalIncome / startBalanse * 100
         balanceLabel.text = tradeBot.returnStringBalance()
         currencyLabel.text = tradeBot.getCurrency()
-        incomeLabel.text = "+ \(tradeBot.formatPrice(totalIncome)) (\(tradeBot.formatPrice(incomePersent))%)"
+        incomeLabel.text = "+ \(totalIncome.formatToString()) (\(incomePersent.formatToString())%)"
     }
     
     // MARK: - Start trading
@@ -72,7 +72,7 @@ final class ViewController: UIViewController {
         let incomePersent = totalIncome / startBalanse * 100
         balanceLabel.text = tradeBot.returnStringBalance()
         currencyLabel.text = tradeBot.getCurrency()
-        incomeLabel.text = "+ \(tradeBot.formatPrice(totalIncome)) (\(tradeBot.formatPrice(incomePersent))%)"
+        incomeLabel.text = "+ \(totalIncome.formatToString()) (\(incomePersent.formatToString())%)"
         textView.text = history
         
         showData()
