@@ -22,8 +22,8 @@ final class ViewController: UIViewController {
     private let emptyDataLabel = UILabel()
     
     private var tradeBot = TradeBot()
-    private var startBalanse: Double = 0.0
-    private var totalBalance: Double = 0.0
+    private var startBalanse: Double = .zero
+    private var totalBalance: Double = .zero
     
     private var history: [TradeOperatiion] = [] {
         didSet {
@@ -38,7 +38,7 @@ final class ViewController: UIViewController {
         initBot()
         
         addStackView()
-        addLabel()
+        addLabels()
         addEmptyDataLabel()
         addTableView()
         addButton()
@@ -57,7 +57,26 @@ final class ViewController: UIViewController {
         tableView.register(HistoryCell.self, forCellReuseIdentifier: HistoryCell.identifier)
         tableView.dataSource = self
     }
+}
+
+// MARK: - TableView extension
+extension ViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return history.count
+    }
     
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if let cell = tableView.dequeueReusableCell(withIdentifier: HistoryCell.identifier),
+           let historyCell = cell as? HistoryCell {
+            let historyText = history[indexPath.row]
+            historyCell.currentOperatiion = historyText
+            return historyCell
+        }
+        return UITableViewCell()
+    }
+}
+
+private extension ViewController {
     // MARK: - Initialization trading bot
     func initBot() {
         startBalanse = tradeBot.balance
@@ -94,45 +113,29 @@ final class ViewController: UIViewController {
     }
 }
 
-// MARK: - TableView extension
-extension ViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return history.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let cell = tableView.dequeueReusableCell(withIdentifier: HistoryCell.identifier),
-           let historyCell = cell as? HistoryCell {
-            let historyText = history[indexPath.row]
-            historyCell.currentOperatiion = historyText
-            return historyCell
-        }
-        return UITableViewCell()
-    }
-}
-
 // MARK: - UI elements extension
 private extension ViewController {
     func addStackView() {
         verticalStackView.axis = .vertical
-        verticalStackView.addArrangedSubview(titleLabel)
-        verticalStackView.addArrangedSubview(horisontalStackView)
         verticalStackView.spacing = 4
         horisontalStackView.axis = .horizontal
         horisontalStackView.spacing = 4
-        horisontalStackView.addArrangedSubview(balanceLabel)
-        horisontalStackView.addArrangedSubview(currencyLabel)
-        verticalStackView.addArrangedSubview(incomeLabel)
         view.addSubview(verticalStackView)
     }
     
-    func addLabel() {
+    func addLabels() {
         titleLabel.text = "Брокерский счёт"
         balanceLabel.setContentHuggingPriority(.required, for: .horizontal)
         balanceLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         currencyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         currencyLabel.textAlignment = .left
         incomeLabel.textColor = .systemGreen
+        
+        verticalStackView.addArrangedSubview(titleLabel)
+        horisontalStackView.addArrangedSubview(balanceLabel)
+        horisontalStackView.addArrangedSubview(currencyLabel)
+        verticalStackView.addArrangedSubview(horisontalStackView)
+        verticalStackView.addArrangedSubview(incomeLabel)
     }
     
     func addEmptyDataLabel() {
