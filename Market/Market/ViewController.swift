@@ -8,7 +8,7 @@
 import UIKit
 
 // MARK: - Main class
-class ViewController: UIViewController {
+final class ViewController: UIViewController {
     private let verticalStackView = UIStackView()
     private let horisontalStackView = UIStackView()
     private let label_1 = UILabel()
