@@ -15,7 +15,6 @@ struct TradeOperatiion {
 }
 
 final class HistoryCell: UITableViewCell {
-    
     private let historyLabel: UILabel = UILabel()
     private var topConstraint: NSLayoutConstraint?
     private var bottomConstraint: NSLayoutConstraint?
