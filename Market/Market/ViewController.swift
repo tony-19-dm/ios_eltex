@@ -11,10 +11,10 @@ import UIKit
 final class ViewController: UIViewController {
     private let verticalStackView = UIStackView()
     private let horisontalStackView = UIStackView()
-    private let label_1 = UILabel()
-    private var label_2 = UILabel()
-    private var label_3 = UILabel()
-    private var label_4 = UILabel()
+    private let titleLabel = UILabel()
+    private var balanceLabel = UILabel()
+    private var currencyLabel = UILabel()
+    private var incomeLabel = UILabel()
     private let button = UIButton()
     
     private let tableView: UITableView = UITableView()
@@ -64,9 +64,9 @@ final class ViewController: UIViewController {
         totalBalance = tradeBot.balance
         let totalIncome = totalBalance - startBalanse
         let incomePersent = totalIncome / startBalanse * 100
-        label_2.text = tradeBot.returnStringBalance()
-        label_3.text = tradeBot.getCurrency()
-        label_4.text = "+ \(totalIncome.formatToString()) (\(incomePersent.formatToString())%)"
+        balanceLabel.text = tradeBot.returnStringBalance()
+        currencyLabel.text = tradeBot.getCurrency()
+        incomeLabel.text = "+ \(totalIncome.formatToString()) (\(incomePersent.formatToString())%)"
     }
     
     // MARK: - Start trading
@@ -76,9 +76,9 @@ final class ViewController: UIViewController {
         totalBalance = tradeBot.balance
         let totalIncome = totalBalance - startBalanse
         let incomePersent = totalIncome / startBalanse * 100
-        label_2.text = tradeBot.returnStringBalance()
-        label_3.text = tradeBot.getCurrency()
-        label_4.text = "+ \(totalIncome.formatToString()) (\(incomePersent.formatToString())%)"
+        balanceLabel.text = tradeBot.returnStringBalance()
+        currencyLabel.text = tradeBot.getCurrency()
+        incomeLabel.text = "+ \(totalIncome.formatToString()) (\(incomePersent.formatToString())%)"
         
         showData()
     }
@@ -115,24 +115,24 @@ extension ViewController: UITableViewDataSource {
 private extension ViewController {
     func addStackView() {
         verticalStackView.axis = .vertical
-        verticalStackView.addArrangedSubview(label_1)
+        verticalStackView.addArrangedSubview(titleLabel)
         verticalStackView.addArrangedSubview(horisontalStackView)
         verticalStackView.spacing = 4
         horisontalStackView.axis = .horizontal
         horisontalStackView.spacing = 4
-        horisontalStackView.addArrangedSubview(label_2)
-        horisontalStackView.addArrangedSubview(label_3)
-        verticalStackView.addArrangedSubview(label_4)
+        horisontalStackView.addArrangedSubview(balanceLabel)
+        horisontalStackView.addArrangedSubview(currencyLabel)
+        verticalStackView.addArrangedSubview(incomeLabel)
         view.addSubview(verticalStackView)
     }
     
     func addLabel() {
-        label_1.text = "Брокерский счёт"
-        label_2.setContentHuggingPriority(.required, for: .horizontal)
-        label_2.setContentCompressionResistancePriority(.required, for: .horizontal)
-        label_3.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        label_3.textAlignment = .left
-        label_4.textColor = .systemGreen
+        titleLabel.text = "Брокерский счёт"
+        balanceLabel.setContentHuggingPriority(.required, for: .horizontal)
+        balanceLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        currencyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        currencyLabel.textAlignment = .left
+        incomeLabel.textColor = .systemGreen
     }
     
     func addEmptyDataLabel() {
