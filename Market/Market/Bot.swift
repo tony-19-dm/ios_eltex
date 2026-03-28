@@ -7,24 +7,28 @@
 
 import Foundation
 
+// MARK: - Enum of currencies
 enum Currency: String {
     case rubble = "ruble"
     case dollar = "dollar"
     case euro = "euro"
 }
 
+// MARK: - Enum of decisions
 enum Decision: String {
     case buying = "buying"
     case selling = "selling"
     case ignoring = "ignoring"
 }
 
+// MARK: - Tade structure
 struct Trade {
     let currency: Currency
     var price: Double
     var canToSell: Bool
 }
 
+// MARK: - Protocol for TradeBot
 protocol GenerateTradeProtocol {
     var currency: Currency { get }
     var iterations: Int { get set }
@@ -37,12 +41,14 @@ protocol GenerateTradeProtocol {
     func start() -> String
 }
 
+// MARK: - Formatting extension
 extension Double {
     func formatToString() -> String {
         return String(format: "%.2f", self)
     }
 }
 
+// MARK: - GenerateTradeProtocol extensions
 extension GenerateTradeProtocol {
     func returnStringBalance() -> String {
         return balance.formatToString()
@@ -53,6 +59,7 @@ extension GenerateTradeProtocol {
     }
 }
 
+// MARK: - Final class
 final class TradeBot: GenerateTradeProtocol {
     let currency: Currency = .rubble
     var iterations: Int = 50
