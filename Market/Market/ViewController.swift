@@ -22,8 +22,8 @@ final class ViewController: UIViewController {
     private let emptyDataLabel = UILabel()
     
     private var tradeBot = TradeBot()
-    private var startBalanse: Double = 0.0
-    private var totalBalance: Double = 0.0
+    private var startBalanse: Double = .zero
+    private var totalBalance: Double = .zero
     private var history: String = ""
 
     override func viewDidLoad() {
@@ -33,7 +33,7 @@ final class ViewController: UIViewController {
         initBot()
         
         addStackView()
-        addLabel()
+        addLabels()
         addEmptyDataLabel()
         addScrollView()
         addTextView()
@@ -51,7 +51,9 @@ final class ViewController: UIViewController {
     func setupUI() {
         view.backgroundColor = .systemBackground
     }
-    
+}
+
+private extension ViewController {
     // MARK: - Initialization trading bot
     func initBot() {
         startBalanse = tradeBot.balance
@@ -93,24 +95,25 @@ final class ViewController: UIViewController {
 private extension ViewController {
     func addStackView() {
         verticalStackView.axis = .vertical
-        verticalStackView.addArrangedSubview(titleLabel)
-        verticalStackView.addArrangedSubview(horisontalStackView)
         verticalStackView.spacing = 4
         horisontalStackView.axis = .horizontal
         horisontalStackView.spacing = 4
-        horisontalStackView.addArrangedSubview(balanceLabel)
-        horisontalStackView.addArrangedSubview(currencyLabel)
-        verticalStackView.addArrangedSubview(incomeLabel)
         view.addSubview(verticalStackView)
     }
     
-    func addLabel() {
+    func addLabels() {
         titleLabel.text = "Брокерский счёт"
         balanceLabel.setContentHuggingPriority(.required, for: .horizontal)
         balanceLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         currencyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         currencyLabel.textAlignment = .left
         incomeLabel.textColor = .systemGreen
+        
+        verticalStackView.addArrangedSubview(titleLabel)
+        horisontalStackView.addArrangedSubview(balanceLabel)
+        horisontalStackView.addArrangedSubview(currencyLabel)
+        verticalStackView.addArrangedSubview(horisontalStackView)
+        verticalStackView.addArrangedSubview(incomeLabel)
     }
     
     func addEmptyDataLabel() {
@@ -124,7 +127,6 @@ private extension ViewController {
     
     func addScrollView() {
         view.addSubview(scrollView)
-        scrollView.addSubview(textView)
     }
     
     func addTextView() {
@@ -132,6 +134,8 @@ private extension ViewController {
         textView.font = UIFont.monospacedSystemFont(ofSize: 12, weight: .regular)
         textView.backgroundColor = .secondarySystemBackground
         textView.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+        
+        scrollView.addSubview(textView)
     }
     
     func addButton () {
