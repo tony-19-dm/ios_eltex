@@ -187,7 +187,7 @@ private extension TradeViewController {
     }
     
     func updateRate() {
-        rate = Double.random(in: 0.0001...1000)
+        rate = Double.random(in: 1...1000)
         
         rateLabel.text = "Курс: \(String(format: "%.4f", rate))"
         

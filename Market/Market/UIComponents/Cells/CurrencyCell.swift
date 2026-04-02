@@ -24,7 +24,6 @@ final class CurrencyCell: UICollectionViewCell {
     }
     
     func update(_ currency: TradeCurrency, isSelected: Bool, isDisabled: Bool) {
-        
         currencyNameLabel.text = currency.name
         
         layer.cornerRadius = 8
@@ -40,7 +39,7 @@ final class CurrencyCell: UICollectionViewCell {
     }
 }
 
-private extension CurrencyCell{
+private extension CurrencyCell {
     func addSubviews() {
         contentView.addSubview(currencyNameLabel)
     }
