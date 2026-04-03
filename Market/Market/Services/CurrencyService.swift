@@ -13,108 +13,116 @@ enum CurrencyType {
     case crypto
 }
 
-struct TradeCurrency {
+struct TradeCurrency: Hashable {
     let name: String
     let type: CurrencyType
     var rate: Double
 }
 
-// MARK: - Generator
 final class CurrencyGenerator {
     static func generate(count: Int) -> [TradeCurrency] {
         var result: [TradeCurrency] = []
-        
         for _ in 0..<count {
             let name = randomName()
             let type: CurrencyType = Bool.random() ? .fiat : .crypto
-            let rate: Double = Double.random(in: 0.1...1000)
-            
+            let rate: Double = Double.random(in: 0.001...1000)
             result.append(TradeCurrency(name: name, type: type, rate: rate))
         }
-        
         return result
     }
     
     private static func randomName() -> String {
-        let letters: String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        var result: String = ""
-        
-        for _ in 0..<3 {
-            guard let letter = letters.randomElement() else { continue }
-            result.append(letter)
-        }
-        return String(result)
+        let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        return String((0..<3).compactMap { _ in letters.randomElement() })
     }
 }
 
 final class CurrencyService: NSObject {
     var selectedFirst: TradeCurrency?
     var selectedSecond: TradeCurrency?
-    
     var isSelectingFirst: Bool = true
-    var onUpdate: (() -> Void)?
     
-    var currencines: [TradeCurrency] = []
+    var currencies: [TradeCurrency] = []
     var filteredCurrencies: [TradeCurrency] = []
+    var favorites: Set<String> = []
     
     var currentFilter: CurrencyType? = nil
+    var onUpdate: (() -> Void)?
     
     override init() {
-        currencines = CurrencyGenerator.generate(count: 102)
-        filteredCurrencies = currencines
         super.init()
+        currencies = CurrencyGenerator.generate(count: 102)
+        filteredCurrencies = currencies
     }
     
-    func applyFilter() {
-        switch currentFilter {
-        case .fiat:
-            filteredCurrencies = currencines.filter { $0.type == .fiat }
-        case .crypto:
-            filteredCurrencies = currencines.filter { $0.type == .crypto }
-        case nil:
-            filteredCurrencies = currencines
+    func applyFilter(type: CurrencyType? = nil, favoritesOnly: Bool = false) {
+        currentFilter = type
+        
+        var result = currencies
+        
+        if let type = type {
+            result = result.filter { $0.type == type }
         }
+        if favoritesOnly {
+            result = result.filter { favorites.contains($0.name) }
+        }
+        
+        filteredCurrencies = result
+        onUpdate?()
+    }
+    
+    func applyFavoritesFilter(isActive: Bool) {
+        applyFilter(type: currentFilter, favoritesOnly: isActive)
     }
     
     func updateRates() {
-        currencines = currencines.map { currency in
+        currencies = currencies.map { currency in
             var updated = currency
-            updated.rate = Double.random(in: 0.1...1000)
+            updated.rate = Double.random(in: 0.001...1000)
             return updated
         }
-        applyFilter()
-        onUpdate?()
+        applyFavoritesFilter(isActive: false)
+    }
+    
+    func toggleFavorite(currency: TradeCurrency) {
+        if favorites.contains(currency.name) {
+            favorites.remove(currency.name)
+        } else {
+            favorites.insert(currency.name)
+        }
+        applyFavoritesFilter(isActive: false)
     }
 }
 
+// MARK: - UICollectionView DataSource
 extension CurrencyService: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return filteredCurrencies.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CurrencyCell.identifier, for: indexPath) as? CurrencyCell else {
-            return UICollectionViewCell()
-        }
+    func collectionView(_ collectionView: UICollectionView,
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: CurrencyCell.identifier,
+            for: indexPath
+        ) as? CurrencyCell else { return UICollectionViewCell() }
         
         let currency = filteredCurrencies[indexPath.row]
-        
         let isSelected = currency.name == selectedFirst?.name || currency.name == selectedSecond?.name
+        let isDisabled = (isSelectingFirst && currency.name == selectedSecond?.name) ||
+                         (!isSelectingFirst && currency.name == selectedFirst?.name)
+        let isFavorite = favorites.contains(currency.name)
         
-        let isDisabled = (isSelectingFirst && currency.name == selectedSecond?.name) || (!isSelectingFirst && currency.name == selectedFirst?.name)
-        
-        cell.update(currency, isSelected: isSelected, isDisabled: isDisabled)
-        
+        cell.update(currency, isSelected: isSelected, isDisabled: isDisabled, isFavorite: isFavorite)
+        cell.delegate = self
         return cell
     }
 }
 
-// MARK: - Actions
+// MARK: - UICollectionView Delegate
 extension CurrencyService: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let currency = filteredCurrencies[indexPath.row]
-        
-        // MARK: - Can not select equal
         if isSelectingFirst {
             if currency.name == selectedSecond?.name { return }
             selectedFirst = currency
@@ -122,8 +130,14 @@ extension CurrencyService: UICollectionViewDelegate {
             if currency.name == selectedFirst?.name { return }
             selectedSecond = currency
         }
-        
         collectionView.reloadData()
         onUpdate?()
+    }
+}
+
+// MARK: - CurrencyCell Delegate
+extension CurrencyService: CurrencyCellDelegate {
+    func didToggleFavorite(currency: TradeCurrency) {
+        toggleFavorite(currency: currency)
     }
 }
