@@ -37,7 +37,7 @@ final class TradeViewController: UIViewController {
     private let resultLabel = UILabel()
     private let timerLabel = UILabel()
     
-    private var rate: Double = Double.random(in: 1...1000)
+    private var rate: Double = Double.random(in: 0.1...1000)
 
     private var timer: Timer?
     private var secondsLeft: Int = 5
@@ -72,8 +72,8 @@ private extension TradeViewController {
         collectionView.dataSource = currencyService
         collectionView.delegate = currencyService
         
-        firstCurrencyButton.setTitle("USD", for: .normal)
-        secondCurrencyButton.setTitle("BTC", for: .normal)
+        firstCurrencyButton.setTitle("1 валюта", for: .normal)
+        secondCurrencyButton.setTitle("2 валюта", for: .normal)
         
         amountTextField.placeholder = "Введите сумму"
         amountTextField.borderStyle = .roundedRect
@@ -195,21 +195,22 @@ private extension TradeViewController {
 // MARK: - UI Update
 private extension TradeViewController {
     func updateTopUI() {
-        firstCurrencyButton.setTitle(currencyService.selectedFirst?.name ?? "USD", for: .normal)
-        secondCurrencyButton.setTitle(currencyService.selectedSecond?.name ?? "BTC", for: .normal)
+        firstCurrencyButton.setTitle(currencyService.selectedFirst?.name ?? "1 валюта", for: .normal)
+        secondCurrencyButton.setTitle(currencyService.selectedSecond?.name ?? "2 валюта", for: .normal)
         
-        rateLabel.text = "Курс: \(String(format: "%.4f", rate))"
-        
+        if let firstName = currencyService.selectedFirst?.name,
+           let secondName = currencyService.selectedSecond?.name,
+           let first = currencyService.currencines.first(where: { $0.name == firstName }),
+           let second = currencyService.currencines.first(where: { $0.name == secondName }) {
+            
+            let rate = second.rate / first.rate
+            rateLabel.text = "Курс: \(String(format: "%.4f", rate))"
+            self.rate = rate
+        }
+
         calculate()
     }
     
-    func updateRate() {
-        rate = Double.random(in: 1...1000)
-        
-        rateLabel.text = "Курс: \(String(format: "%.4f", rate))"
-        
-        calculate()
-    }
     
     func calculate() {
         guard
@@ -226,22 +227,18 @@ private extension TradeViewController {
         resultLabel.text = "\(String(format: "%.4f", result)) \(second.name)"
     }
     
-    func tick() {
-        secondsLeft -= 1
-        
-        timerLabel.text = "Обновление через: \(secondsLeft)с"
-        
-        if secondsLeft == 0 {
-            updateRate()
-            secondsLeft = 5
-        }
-    }
-    
     func startTimer() {
         timer?.invalidate()
         secondsLeft = 5
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            self?.tick()
+            guard let self = self else { return }
+            self.secondsLeft -= 1
+            self.timerLabel.text = "Обновление через: \(self.secondsLeft)с"
+            
+            if self.secondsLeft == 0 {
+                self.currencyService.updateRates()
+                self.secondsLeft = 5
+            }
         }
     }
 }

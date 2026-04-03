@@ -16,6 +16,7 @@ enum CurrencyType {
 struct TradeCurrency {
     let name: String
     let type: CurrencyType
+    var rate: Double
 }
 
 // MARK: - Generator
@@ -26,8 +27,9 @@ final class CurrencyGenerator {
         for _ in 0..<count {
             let name = randomName()
             let type: CurrencyType = Bool.random() ? .fiat : .crypto
+            let rate: Double = Double.random(in: 0.1...1000)
             
-            result.append(TradeCurrency(name: name, type: type))
+            result.append(TradeCurrency(name: name, type: type, rate: rate))
         }
         
         return result
@@ -72,6 +74,16 @@ final class CurrencyService: NSObject {
         case nil:
             filteredCurrencies = currencines
         }
+    }
+    
+    func updateRates() {
+        currencines = currencines.map { currency in
+            var updated = currency
+            updated.rate = Double.random(in: 0.1...1000)
+            return updated
+        }
+        applyFilter()
+        onUpdate?()
     }
 }
 
