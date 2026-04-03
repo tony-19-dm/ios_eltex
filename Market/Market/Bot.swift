@@ -7,86 +7,111 @@
 
 import Foundation
 
+// MARK: - Enum of currencies
 enum Currency: String {
     case rubble = "ruble"
     case dollar = "dollar"
     case euro = "euro"
 }
 
+// MARK: - Enum of decisions
+enum Decision: String {
+    case buying = "buying"
+    case selling = "selling"
+    case ignoring = "ignoring"
+}
+
+// MARK: - Tade structure
 struct Trade {
     let currency: Currency
     var price: Double
     var canToSell: Bool
 }
 
+// MARK: - Protocol for TradeBot
 protocol GenerateTradeProtocol {
-    var valute: Currency { get }
+    var currency: Currency { get }
     var iterations: Int { get set }
     var balance: Double { get set }
     var minPrice: Double { get }
     var maxPrice: Double { get }
     var activePrice: Double? { get }
     
-    func decisionBot(price: Double, canToSell: Bool) -> String
-    func start() -> String
+    func decisionBot(price: Double, canToSell: Bool) -> Decision
+    func generateHistory() -> [TradeOperatiion]
 }
 
+// MARK: - Formatting extension
+extension Double {
+    func formatToString() -> String {
+        return String(format: "%.2f", self)
+    }
+}
+
+// MARK: - GenerateTradeProtocol extensions
 extension GenerateTradeProtocol {
-    func formatPrice(_ price: Double) -> String {
-        return String(format: "%.2f", price)
-    }
-    
     func returnStringBalance() -> String {
-        return formatPrice(balance)
+        return balance.formatToString()
     }
     
-    func getValute() -> String {
-        return valute.rawValue
+    func getCurrency() -> String {
+        return currency.rawValue
     }
 }
 
-class TradeBot: GenerateTradeProtocol {
-    let valute: Currency = .rubble
-    internal var iterations: Int = 50
-    internal var balance: Double = 10000.0
-    internal let minPrice: Double = 50.0
-    internal let maxPrice: Double = 100.0
-    internal var activePrice: Double? = nil
+// MARK: - Final class
+final class TradeBot: GenerateTradeProtocol {
+    let currency: Currency = .rubble
+    var iterations: Int = 50
+    var balance: Double = 10000.0
+    let minPrice: Double = 50.0
+    let maxPrice: Double = 100.0
+    var activePrice: Double? = nil
     
-    func decisionBot(price: Double, canToSell: Bool) -> String {
+    func decisionBot(price: Double, canToSell: Bool) -> Decision {
         if !canToSell && price < 65.0 {
-            return "buying"
+            return .buying
         } else if canToSell && price > 85.0 {
-            return "selling"
+            return .selling
         } else {
-            return "ignoring"
+            return .ignoring
         }
     }
     
-    func start() -> String {
-        var trade = Trade(currency: valute, price: 0.0, canToSell: false)
-        var history: String = ""
-        for _ in 1...iterations {
+    func generateHistory() -> [TradeOperatiion] {
+        var history: [TradeOperatiion] = []
+        var trade = Trade(currency: currency, price: 0.0, canToSell: false)
+        for _ in 0...iterations {
             let currentPrice = Double.random(in: minPrice...maxPrice)
             trade.price = currentPrice
             let decision = decisionBot(price: trade.price, canToSell: trade.canToSell)
-            history += "\(formatPrice(trade.price)) \(valute) - \(decision)\n"
-            
+            let operationText = "\((trade.price).formatToString()) \(currency) - \(decision.rawValue)"
+            let historyText = TradeOperatiion(
+                id: UUID(),
+                text: operationText,
+                operation: decision
+            )
+            history.append(historyText)
             switch decision {
-            case "buying":
+            case .buying:
                 guard activePrice == nil else { continue }
                 if balance >= trade.price {
                     activePrice = trade.price
                     balance -= trade.price
                     trade.canToSell = true
                 }
-            case "selling":
-                if trade.canToSell && activePrice != nil {
-                    let purchasePrice = activePrice!
+            case .selling:
+                if trade.canToSell, let activePriceUnwrapped = activePrice {
+                    let purchasePrice = activePriceUnwrapped
                     let income = trade.price - purchasePrice
                     balance += trade.price
-                    history += ("ПРОДАЖА:\n")
-                    history += ("FROM = \(String(format: "%.2f", purchasePrice)) -> TO = \(formatPrice(trade.price)), INCOME = +\(formatPrice(income))\n")
+                    let text = "FROM = \(purchasePrice.formatToString()) -> TO = \((trade.price).formatToString()), INCOME = +\(income.formatToString())"
+                    let historyText = TradeOperatiion(
+                        id: UUID(),
+                        text: text,
+                        operation: decision
+                    )
+                    history.append(historyText)
                     trade.canToSell = false
                     activePrice = nil
                 }
@@ -99,6 +124,3 @@ class TradeBot: GenerateTradeProtocol {
         return history
     }
 }
-
-//var tradeBot = TradeBot()
-//tradeBot.start()
