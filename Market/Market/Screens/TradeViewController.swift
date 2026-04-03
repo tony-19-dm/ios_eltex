@@ -19,6 +19,12 @@ final class TradeViewController: UIViewController {
     
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
     
+    private let topMenuStackView = UIStackView()
+    private let currenciesStackView = UIStackView()
+    
+    private let leftSpacer = UIView()
+    private let rightSpacer = UIView()
+    
     private let firstCurrencyButton = UIButton()
     private let secondCurrencyButton = UIButton()
     private let rateLabel = UILabel()
@@ -50,9 +56,16 @@ final class TradeViewController: UIViewController {
     }
 }
 
+// MARK: - UI elements extension
 private extension TradeViewController {
     func setupUI() {
         view.backgroundColor = .systemBackground
+        
+        topMenuStackView.axis = .vertical
+        topMenuStackView.spacing = 16
+        
+        currenciesStackView.axis = .horizontal
+        currenciesStackView.distribution = .equalSpacing
         
         collectionView.register(CurrencyCell.self, forCellWithReuseIdentifier: CurrencyCell.identifier)
         
@@ -86,17 +99,25 @@ private extension TradeViewController {
     }
     
     func addSubviews() {
-        view.addSubview(firstCurrencyButton)
-        view.addSubview(amountTextField)
-        view.addSubview(resultLabel)
-        view.addSubview(timerLabel)
-        view.addSubview(secondCurrencyButton)
-        view.addSubview(rateLabel)
-        view.addSubview(filterControl)
+        view.addSubview(topMenuStackView)
         view.addSubview(collectionView)
+        
+        topMenuStackView.addArrangedSubview(currenciesStackView)
+        topMenuStackView.addArrangedSubview(rateLabel)
+        topMenuStackView.addArrangedSubview(timerLabel)
+        topMenuStackView.addArrangedSubview(amountTextField)
+        topMenuStackView.addArrangedSubview(resultLabel)
+        topMenuStackView.addArrangedSubview(filterControl)
+        
+        currenciesStackView.addArrangedSubview(leftSpacer)
+        currenciesStackView.addArrangedSubview(firstCurrencyButton)
+        currenciesStackView.addArrangedSubview(secondCurrencyButton)
+        currenciesStackView.addArrangedSubview(rightSpacer)
     }
     
     func makeConstraints() {
+        topMenuStackView.translatesAutoresizingMaskIntoConstraints = false
+        currenciesStackView.translatesAutoresizingMaskIntoConstraints = false
         firstCurrencyButton.translatesAutoresizingMaskIntoConstraints = false
         secondCurrencyButton.translatesAutoresizingMaskIntoConstraints = false
         rateLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -107,30 +128,26 @@ private extension TradeViewController {
         timerLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            firstCurrencyButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            firstCurrencyButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            topMenuStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            topMenuStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            topMenuStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             
-            secondCurrencyButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            secondCurrencyButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            currenciesStackView.topAnchor.constraint(equalTo: topMenuStackView.topAnchor),
+            currenciesStackView.leadingAnchor.constraint(equalTo: topMenuStackView.leadingAnchor),
+            currenciesStackView.trailingAnchor.constraint(equalTo: topMenuStackView.trailingAnchor),
             
-            rateLabel.topAnchor.constraint(equalTo: firstCurrencyButton.bottomAnchor, constant: 12),
-            rateLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            rateLabel.centerXAnchor.constraint(equalTo: topMenuStackView.centerXAnchor),
 
-            filterControl.topAnchor.constraint(equalTo: rateLabel.bottomAnchor, constant: 12),
-            filterControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            filterControl.centerXAnchor.constraint(equalTo: topMenuStackView.centerXAnchor),
             
-            amountTextField.topAnchor.constraint(equalTo: filterControl.bottomAnchor, constant: 12),
-            amountTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            amountTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            amountTextField.leadingAnchor.constraint(equalTo: topMenuStackView.leadingAnchor, constant: 16),
+            amountTextField.trailingAnchor.constraint(equalTo: topMenuStackView.trailingAnchor, constant: -16),
             
-            resultLabel.topAnchor.constraint(equalTo: amountTextField.bottomAnchor, constant: 8),
-            resultLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            
-            timerLabel.topAnchor.constraint(equalTo: resultLabel.bottomAnchor, constant: 4),
-            timerLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            resultLabel.centerXAnchor.constraint(equalTo: topMenuStackView.centerXAnchor),
+
+            timerLabel.centerXAnchor.constraint(equalTo: topMenuStackView.centerXAnchor),
                 
-            collectionView.topAnchor.constraint(equalTo: timerLabel.bottomAnchor, constant: 16),
-            
+            collectionView.topAnchor.constraint(equalTo: topMenuStackView.bottomAnchor, constant: 16),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
