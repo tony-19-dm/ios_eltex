@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class ViewController: UIViewController {
+final class TradeHistoryViewController: UIViewController {
     private let controlsView = ControlsView()
     
     private var tradeBot = TradeBot()
@@ -36,7 +36,7 @@ final class ViewController: UIViewController {
 }
 
 // MARK: - Setup
-private extension ViewController {
+private extension TradeHistoryViewController {
     func setupUI() {
         view.backgroundColor = .systemBackground
     }
@@ -67,7 +67,7 @@ private extension ViewController {
 }
 
 // MARK: - Logic
-private extension ViewController {
+private extension TradeHistoryViewController {
     func initBot() {
         startBalanse = tradeBot.balance
         totalBalance = tradeBot.balance
@@ -102,7 +102,7 @@ private extension ViewController {
 }
 
 // MARK: - TableView
-extension ViewController: UITableViewDataSource {
+extension TradeHistoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         history.count
     }
