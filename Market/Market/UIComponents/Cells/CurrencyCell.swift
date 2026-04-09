@@ -74,8 +74,8 @@ private extension CurrencyCell {
             
             favoriteButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
             favoriteButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -4),
-            favoriteButton.widthAnchor.constraint(equalToConstant: 24),
-            favoriteButton.heightAnchor.constraint(equalToConstant: 24)
+            favoriteButton.widthAnchor.constraint(equalToConstant: 16),
+            favoriteButton.heightAnchor.constraint(equalToConstant: 16)
         ])
     }
     
