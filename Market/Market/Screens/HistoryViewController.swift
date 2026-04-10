@@ -47,6 +47,8 @@ final class HistoryViewController: UIViewController {
         
         initBot()
         controlsView.showEmptyState()
+        
+        setupSwipe()
     }
 }
 
@@ -201,5 +203,18 @@ private extension HistoryViewController {
         vc.modalPresentationStyle = .pageSheet
         
         present(UINavigationController(rootViewController: vc), animated: true)
+    }
+}
+
+private extension HistoryViewController {
+    func setupSwipe() {
+        let swipe = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeUp))
+        swipe.direction = .up
+        
+        view.addGestureRecognizer(swipe)
+    }
+    
+    @objc private func handleSwipeUp() {
+        tabBarController?.selectedIndex = 2
     }
 }
