@@ -18,6 +18,10 @@ final class ControlsView: UIView {
     var incomeLabel = UILabel()
     let button = UIButton()
     
+    let currecnyStackView = UIStackView()
+    var firstCurrencyLabel = UILabel()
+    var secondCurrencyLabel = UILabel()
+    
     let tableView: UITableView = UITableView()
     let emptyDataLabel = UILabel()
     
@@ -71,6 +75,17 @@ private extension ControlsView {
         button.setTitle("Run", for: .normal)
         button.layer.cornerRadius = height / 2
         button.addTarget(self, action: #selector(handleButtonTapped), for: .touchUpInside)
+        
+        currecnyStackView.axis = .horizontal
+        currecnyStackView.spacing = 8
+        firstCurrencyLabel.text = "BTC"
+        secondCurrencyLabel.text = "USD"
+        
+        firstCurrencyLabel.setContentHuggingPriority(.required, for: .horizontal)
+        firstCurrencyLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        
+        secondCurrencyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        secondCurrencyLabel.textAlignment = .left
     }
     
     func addSubviews() {
@@ -84,6 +99,9 @@ private extension ControlsView {
         horisontalStackView.addArrangedSubview(currencyLabel)
         verticalStackView.addArrangedSubview(horisontalStackView)
         verticalStackView.addArrangedSubview(incomeLabel)
+        verticalStackView.addArrangedSubview(currecnyStackView)
+        currecnyStackView.addArrangedSubview(firstCurrencyLabel)
+        currecnyStackView.addArrangedSubview(secondCurrencyLabel)
     }
     
     func makeConstraints() {
@@ -91,6 +109,7 @@ private extension ControlsView {
         makeEmptyDataLabelConstraints()
         makeTableViewConstraints()
         makeButtonConstraints()
+        makeCurrencyStackViewConstraints()
     }
 }
 
@@ -133,6 +152,12 @@ private extension ControlsView {
             button.centerXAnchor.constraint(equalTo: safeAreaLayoutGuide.centerXAnchor),
             button.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
+    }
+    
+    func makeCurrencyStackViewConstraints() {
+        currecnyStackView.isLayoutMarginsRelativeArrangement = false
+        firstCurrencyLabel.translatesAutoresizingMaskIntoConstraints = false
+        secondCurrencyLabel.translatesAutoresizingMaskIntoConstraints = false
     }
 }
 
