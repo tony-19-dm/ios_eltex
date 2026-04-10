@@ -53,6 +53,8 @@ final class CurrencyService: NSObject {
         super.init()
         currencies = CurrencyGenerator.generate(count: 102)
         filteredCurrencies = currencies
+        
+        randomFavorites()
     }
     
     func applyFilter(type: CurrencyType? = nil, favoritesOnly: Bool = false) {
@@ -112,6 +114,13 @@ final class CurrencyService: NSObject {
         selectedSecond = nil
         isSelectingFirst = true
         notify()
+    }
+    
+    func randomFavorites() {
+        for _ in 0..<10 {
+            guard let favorite = currencies.randomElement() else { return }
+            favorites.insert(favorite.name)
+        }
     }
     
     func randomPair() {
