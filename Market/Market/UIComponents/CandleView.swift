@@ -62,5 +62,8 @@ private extension CandleView {
         
         bodyView.backgroundColor = color
         tailView.backgroundColor = color
+        
+        bodyView.layer.cornerRadius = 2
+        tailView.layer.cornerRadius = 1
     }
 }
