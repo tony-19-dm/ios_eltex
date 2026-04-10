@@ -193,13 +193,13 @@ private extension HistoryViewController {
 }
 
 private extension HistoryViewController {
-    func openCurrencySelector(selectingFirst: Bool) {
-        let vc = CurrencyPairViewController(
-            currencyService: currencyService,
-            isSelectingFirst: selectingFirst
-        )
+    private func openCurrencySelector(selectingFirst: Bool) {
+        currencyService.isSelectingFirst = selectingFirst
+        
+        let vc = ShortCurrencyPairViewController(currencyService: currencyService)
         
         vc.modalPresentationStyle = .pageSheet
-        present(vc, animated: true)
+        
+        present(UINavigationController(rootViewController: vc), animated: true)
     }
 }
