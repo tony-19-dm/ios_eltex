@@ -106,6 +106,22 @@ final class CurrencyService: NSObject {
     private func notify() {
         observers.values.forEach { $0() }
     }
+    
+    func resetSelection() {
+        selectedFirst = nil
+        selectedSecond = nil
+        isSelectingFirst = true
+        notify()
+    }
+    
+    func randomPair() {
+        let shuffled = currencies.shuffled()
+        
+        selectedFirst = shuffled.first
+        selectedSecond = shuffled.dropFirst().first
+        
+        notify()
+    }
 }
 
 // MARK: - UICollectionView DataSource

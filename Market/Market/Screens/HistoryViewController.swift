@@ -38,6 +38,7 @@ final class HistoryViewController: UIViewController {
         }
         
         setupUI()
+        setupNavigationBar()
         addSubviews()
         makeConstraints()
         
@@ -141,6 +142,46 @@ extension HistoryViewController: UITableViewDataSource {
         }
         
         return UITableViewCell()
+    }
+}
+
+// MARK: - Actions
+private extension HistoryViewController {
+    @objc private func resetTapped() {
+        currencyService.resetSelection()
+            
+        tradeBot.reset()
+        
+        history = []
+        controlsView.showEmptyState()
+        
+        initBot()
+    }
+    
+    @objc private func randomTapped() {
+        currencyService.randomPair()
+    }
+}
+
+// MARK: - NavigationBar
+private extension HistoryViewController {
+    func setupNavigationBar() {
+        let resetButton = UIBarButtonItem(
+            image: UIImage(systemName: "trash"),
+            style: .plain,
+            target: self,
+            action: #selector(resetTapped)
+        )
+        
+        let randomButton = UIBarButtonItem(
+            image: UIImage(systemName: "shuffle"),
+            style: .plain,
+            target: self,
+            action: #selector(randomTapped)
+        )
+        
+        navigationItem.leftBarButtonItem = resetButton
+        navigationItem.rightBarButtonItem = randomButton
     }
 }
 
