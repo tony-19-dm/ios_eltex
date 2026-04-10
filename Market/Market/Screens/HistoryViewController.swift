@@ -160,6 +160,13 @@ private extension HistoryViewController {
     
     @objc private func randomTapped() {
         currencyService.randomPair()
+            
+        tradeBot.reset()
+        
+        history = []
+        controlsView.showEmptyState()
+        
+        initBot()
     }
 }
 
