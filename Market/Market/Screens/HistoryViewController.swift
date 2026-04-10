@@ -14,14 +14,28 @@ final class HistoryViewController: UIViewController {
     private var startBalanse: Double = .zero
     private var totalBalance: Double = .zero
     
+    private var observerId: UUID?
+    
+    deinit {
+        if let id = observerId {
+            currencyService.removeObserver(id: id)
+        }
+    }
+    
     private var history: [TradeOperatiion] = [] {
         didSet {
             controlsView.tableView.reloadData()
         }
     }
     
+    private let currencyService = CurrencyService()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        observerId = currencyService.addObserver { [weak self] in
+            self?.updateCurrencyUI()
+        }
         
         setupUI()
         addSubviews()
@@ -63,6 +77,14 @@ private extension HistoryViewController {
         controlsView.onRunTapped = { [weak self] in
             self?.run()
         }
+        
+        controlsView.onFirstCurrencyTapped = { [weak self] in
+            self?.openCurrencySelector(selectingFirst: true)
+        }
+
+        controlsView.onSecondCurrencyTapped = { [weak self] in
+            self?.openCurrencySelector(selectingFirst: false)
+        }
     }
 }
 
@@ -99,6 +121,11 @@ private extension HistoryViewController {
         
         controlsView.showData()
     }
+    
+    func updateCurrencyUI() {
+        controlsView.firstCurrencyLabel.text = currencyService.selectedFirst?.name ?? "BTC"
+        controlsView.secondCurrencyLabel.text = currencyService.selectedSecond?.name ?? "USD"
+    }
 }
 
 // MARK: - TableView
@@ -114,5 +141,17 @@ extension HistoryViewController: UITableViewDataSource {
         }
         
         return UITableViewCell()
+    }
+}
+
+private extension HistoryViewController {
+    func openCurrencySelector(selectingFirst: Bool) {
+        let vc = CurrencyPairViewController(
+            currencyService: currencyService,
+            isSelectingFirst: selectingFirst
+        )
+        
+        vc.modalPresentationStyle = .pageSheet
+        present(vc, animated: true)
     }
 }

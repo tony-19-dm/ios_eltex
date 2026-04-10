@@ -27,6 +27,8 @@ final class ControlsView: UIView {
     
     // MARK: - Actions
     var onRunTapped: (() -> Void)?
+    var onFirstCurrencyTapped: (() -> Void)?
+    var onSecondCurrencyTapped: (() -> Void)?
     
     // MARK: - Init
     override init(frame: CGRect) {
@@ -86,6 +88,15 @@ private extension ControlsView {
         
         secondCurrencyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         secondCurrencyLabel.textAlignment = .left
+        
+        firstCurrencyLabel.isUserInteractionEnabled = true
+        secondCurrencyLabel.isUserInteractionEnabled = true
+
+        let firstTap = UITapGestureRecognizer(target: self, action: #selector(firstTapped))
+        let secondTap = UITapGestureRecognizer(target: self, action: #selector(secondTapped))
+
+        firstCurrencyLabel.addGestureRecognizer(firstTap)
+        secondCurrencyLabel.addGestureRecognizer(secondTap)
     }
     
     func addSubviews() {
@@ -165,6 +176,14 @@ private extension ControlsView {
 private extension ControlsView {
     @objc func handleButtonTapped() {
         onRunTapped?()
+    }
+    
+    @objc private func firstTapped() {
+        onFirstCurrencyTapped?()
+    }
+
+    @objc private func secondTapped() {
+        onSecondCurrencyTapped?()
     }
 }
 
