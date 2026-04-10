@@ -40,7 +40,7 @@ private extension SceneDelegate {
         tradeNavigationController.tabBarItem = UITabBarItem(
             title: "Торговля",
             image: UIImage(systemName: "rublesign.arrow.trianglehead.counterclockwise.rotate.90"),
-            tag: 0
+            tag: 1
         )
         
         tabBarController.viewControllers = [historyNavigationController, tradeNavigationController]
