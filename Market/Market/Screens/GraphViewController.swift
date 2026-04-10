@@ -21,7 +21,7 @@ final class GraphViewController: UIViewController {
        super.viewDidLoad()
        
        setupUI()
-       layoutUI()
+       makeConstraints()
        generate()
    }
 }
@@ -54,7 +54,7 @@ private extension GraphViewController {
 }
 
 private extension GraphViewController {
-    func layoutUI() {
+    func makeConstraints() {
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
