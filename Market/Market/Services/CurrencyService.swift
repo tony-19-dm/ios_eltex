@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-enum CurrencyType {
+enum CurrencyType: CaseIterable {
     case fiat
     case crypto
 }
@@ -22,9 +22,16 @@ struct TradeCurrency: Hashable {
 final class CurrencyGenerator {
     static func generate(count: Int) -> [TradeCurrency] {
         var result: [TradeCurrency] = []
+        var usedNames: Set<String> = []
+        
         for _ in 0..<count {
             let name = randomName()
-            let type: CurrencyType = Bool.random() ? .fiat : .crypto
+            
+            guard !usedNames.contains(name),
+                  let type = CurrencyType.allCases.randomElement()
+            else { continue }
+            
+            usedNames.insert(name)
             let rate: Double = Double.random(in: 0.001...1000)
             result.append(TradeCurrency(name: name, type: type, rate: rate))
         }
