@@ -85,7 +85,7 @@ private extension LineChartView {
         path.lineJoinStyle = .round
         path.lineCapStyle = .round
         
-        UIColor.systemBlue.setStroke()
+        UIColor.systemMint.setStroke()
         
         for (index, point) in points.enumerated() {
             if index == 0 {
@@ -113,7 +113,7 @@ private extension LineChartView {
                 clockwise: true
             )
             
-            UIColor.systemBlue.setFill()
+            UIColor.systemMint.setFill()
             circle.fill()
         }
     }
