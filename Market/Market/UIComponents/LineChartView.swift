@@ -10,6 +10,7 @@ import UIKit
 
 final class LineChartView: UIView {
     private var selectedIndex: Int?
+    private let pulseLayer = CAShapeLayer()
     
     var prices: [Double] = [] {
         didSet {
@@ -24,6 +25,7 @@ final class LineChartView: UIView {
         isUserInteractionEnabled = true
         layer.cornerRadius = 12
         clipsToBounds = true
+        layer.addSublayer(pulseLayer)
     }
     
     required init?(coder: NSCoder) {
@@ -37,6 +39,7 @@ final class LineChartView: UIView {
         
         drawGrid()
         drawLine()
+        drawCurrentPricePulse()
         drawPoints()
         drawSelectedPoint()
         drawPriceLabels()
@@ -226,5 +229,48 @@ extension LineChartView {
         
         selectedIndex = nearestIndex
         setNeedsDisplay()
+    }
+}
+
+// MARK: - Animations
+private extension LineChartView {
+    func drawCurrentPricePulse() {
+        let points = makePoints()
+        guard let last = points.last else { return }
+
+        let path = UIBezierPath(
+            arcCenter: last,
+            radius: 10,
+            startAngle: 0,
+            endAngle: .pi * 2,
+            clockwise: true
+        )
+
+        pulseLayer.path = path.cgPath
+        pulseLayer.fillColor = UIColor.systemGreen.cgColor
+
+        if pulseLayer.animation(forKey: "pulse") == nil {
+
+            let anim = CABasicAnimation(keyPath: "opacity")
+            anim.fromValue = 1
+            anim.toValue = 0.4
+            anim.duration = 0.8
+            anim.autoreverses = true
+            anim.repeatCount = .infinity
+
+            pulseLayer.add(anim, forKey: "pulse")
+        }
+    }
+}
+
+extension LineChartView {
+    func animateToNewPrices(_ newPrices: [Double]) {
+        UIView.transition(
+            with: self,
+            duration: 0.4,
+            options: .transitionCrossDissolve
+        ) {
+            self.prices = newPrices
+        }
     }
 }

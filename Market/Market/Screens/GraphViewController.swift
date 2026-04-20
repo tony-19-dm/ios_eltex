@@ -20,10 +20,14 @@ final class GraphViewController: UIViewController {
     private let segmentedControl = UISegmentedControl(items: ["Свечи", "Линия"])
     
     private let lineChartView = LineChartView()
+    
+    private var timer: Timer?
    
     override func viewDidLoad() {
         super.viewDidLoad()
        
+        startLive()
+        
         setupUI()
         makeConstraints()
         generate()
@@ -186,5 +190,30 @@ private extension GraphViewController {
         infoView.isHidden = true
         recommendationView.isHidden = true
         lineChartView.isHidden = false
+    }
+}
+
+private extension GraphViewController {
+    func startLive() {
+        timer = Timer.scheduledTimer(
+            withTimeInterval: 2,
+            repeats: true
+        ) { [weak self] _ in
+
+            guard let self else { return }
+
+            var prices = lineChartView.prices
+
+            let last = prices.last ?? 100
+            let new = last + Double.random(in: -10...10)
+
+            prices.append(max(1, new))
+
+            if prices.count > 20 {
+                prices.removeFirst()
+            }
+
+            self.lineChartView.animateToNewPrices(prices)
+        }
     }
 }
