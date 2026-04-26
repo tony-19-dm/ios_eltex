@@ -12,8 +12,6 @@ final class HistoryViewController: UIViewController {
     
     let wallet = Wallet()
     
-    private let currentDay: Int = 15
-    
     lazy var bots = [
         GCDBot(name: "BotBtcMaster", first: "BTC", second: "USD", wallet: wallet),
         GCDBot(name: "BotSuperBitcoin", first: "BTC", second: "USD", wallet: wallet),
@@ -118,18 +116,20 @@ private extension HistoryViewController {
         let group = DispatchGroup()
         let lock = NSLock()
         
-        for bot in bots {
-            group.enter()
-            
-            DispatchQueue.global().async {
+        for day in 1...AppConfig.days {
+            for bot in bots {
+                group.enter()
                 
-                let result = bot.start(day: self.currentDay)
-                
-                lock.lock()
-                results.append(result)
-                lock.unlock()
-                
-                group.leave()
+                DispatchQueue.global().sync {
+                    
+                    let result = bot.start(day: day)
+                    
+                    lock.lock()
+                    results.append(result)
+                    lock.unlock()
+                    
+                    group.leave()
+                }
             }
         }
         
