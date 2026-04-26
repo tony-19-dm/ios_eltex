@@ -19,7 +19,7 @@ final class HistoryCell: UITableViewCell {
     private var topConstraint: NSLayoutConstraint?
     private var bottomConstraint: NSLayoutConstraint?
     
-    var currentOperatiion: TradeOperatiion? = nil {
+    var result: TradeResult? {
         didSet {
             updateUI()
         }
@@ -40,28 +40,20 @@ final class HistoryCell: UITableViewCell {
 
 private extension HistoryCell {
     func updateUI() {
-        guard let currentOperatiionUnwrapped = currentOperatiion else { return }
-        historyLabel.text = currentOperatiionUnwrapped.text
-        
-        topConstraint?.isActive = false
-        bottomConstraint?.isActive = false
-        
-        if currentOperatiionUnwrapped.operation == .buying {
-            historyLabel.textColor = .systemGreen
+        guard let result else { return }
+        let sign = result.income >= 0 ? "+" : ""
+            historyLabel.text = "\(result.botName) (\(result.pair)), day = \(result.day), income = \(sign)\(Int(result.income))$"
+
+            historyLabel.textColor = result.income >= 0 ? .systemGreen : .systemRed
+
+            topConstraint?.isActive = false
+            bottomConstraint?.isActive = false
+
             topConstraint = historyLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16)
             bottomConstraint = historyLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
-        } else if currentOperatiionUnwrapped.operation == .selling {
-            historyLabel.textColor = .systemRed
-            topConstraint = historyLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16)
-            bottomConstraint = historyLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
-        } else {
-            historyLabel.textColor = .systemYellow
-            topConstraint = historyLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8)
-            bottomConstraint = historyLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
-        }
-        
-        topConstraint?.isActive = true
-        bottomConstraint?.isActive = true
+
+            topConstraint?.isActive = true
+            bottomConstraint?.isActive = true
     }
     
     func addSubviews() {

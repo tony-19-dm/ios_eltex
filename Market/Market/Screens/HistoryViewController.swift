@@ -147,14 +147,11 @@ extension HistoryViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
-        
-        let item = botResults[indexPath.row]
-        
-        cell.textLabel?.numberOfLines = 0
-        cell.textLabel?.text = "\(item.botName) (\(item.pair)), day = \(item.day), income = +\(Int(item.income))$"
-        
-        return cell
+        if let cell = tableView.dequeueReusableCell(withIdentifier: HistoryCell.identifier) as? HistoryCell {
+            cell.result = botResults[indexPath.row]
+            return cell
+        }
+        return UITableViewCell()
     }
 }
 
@@ -163,6 +160,7 @@ private extension HistoryViewController {
     @objc func resetTapped() {
         currencyService.resetSelection()
         controlsView.showEmptyState()
+        wallet.resetWallet()
     }
     
     @objc func randomTapped() {
