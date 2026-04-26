@@ -50,7 +50,16 @@ extension SceneDelegate {
             tag: 2
         )
         
-        tabBarController.viewControllers = [historyNavigationController, tradeNavigationController, graphNavigationController]
+        let exchangeViewController = ExchangeViewController(wallet: Wallet())
+        exchangeViewController.title = "График"
+        let exchangeNavigationController = UINavigationController(rootViewController: exchangeViewController)
+        exchangeNavigationController.tabBarItem = UITabBarItem(
+            title: "График",
+            image: UIImage(systemName: "chart.line.uptrend.xyaxis"),
+            tag: 3
+        )
+        
+        tabBarController.viewControllers = [historyNavigationController, tradeNavigationController, graphNavigationController, exchangeNavigationController]
         
         return tabBarController
     }
