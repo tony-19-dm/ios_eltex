@@ -116,23 +116,20 @@ private extension HistoryViewController {
         let group = DispatchGroup()
         let lock = NSLock()
         
-        for day in 1...AppConfig.days {
-            for bot in bots {
-                group.enter()
+        for bot in bots {
+            group.enter()
+            
+            DispatchQueue.global().async {
+                let result = bot.start(day: AppConfig.days)
                 
-                DispatchQueue.global().sync {
-                    
-                    let result = bot.start(day: day)
-                    
-                    lock.lock()
-                    results.append(result)
-                    lock.unlock()
-                    
-                    group.leave()
-                }
+                lock.lock()
+                results.append(result)
+                lock.unlock()
+                
+                group.leave()
             }
         }
-        
+    
         group.wait()
         return results
     }
