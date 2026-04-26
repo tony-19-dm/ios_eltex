@@ -154,7 +154,7 @@ extension HistoryViewController: UITableViewDataSource {
         
         let item = botResults[indexPath.row]
         
-        let sign = item.income >= 0 ? "+" : ""
+        let sign = item.income > 0 ? "+" : ""
         
         cell.textLabel?.numberOfLines = 0
         cell.textLabel?.text = "\(item.botName) (\(item.pair)), day = \(item.day), income = \(sign)\(Int(item.income))$"
