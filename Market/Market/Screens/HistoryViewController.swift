@@ -184,7 +184,7 @@ private extension HistoryViewController {
     }
     
     @objc private func openCurrencyPair() {
-        let vc = TradeViewController(currencyService: currencyService)
+        let vc = TradeViewController(currencyService: currencyService, wallet: wallet)
 
         vc.title = "Выбор валют"
 

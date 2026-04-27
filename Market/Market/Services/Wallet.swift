@@ -25,6 +25,16 @@ final class Wallet {
     
     private let queue = DispatchQueue(label: "wallet.sync.queue")
     
+    func ensureAccount(name: String) {
+        queue.sync {
+            if !balances.contains(where: { $0.name == name }) {
+                balances.append(
+                    Balance(name: name, value: 10000, credit: 0)
+                )
+            }
+        }
+    }
+    
     func getAllBalances() -> [Balance] {
         return queue.sync { balances }
     }
