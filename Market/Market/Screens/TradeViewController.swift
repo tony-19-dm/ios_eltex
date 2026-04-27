@@ -29,8 +29,6 @@ final class TradeViewController: UIViewController {
     private let secondCurrencyButton = UIButton()
     private let rateLabel = UILabel()
     
-    private let currencyService = CurrencyService()
-    
     private let favoritesFilterView = FavoritesFilterView()
     private let filterControl = UISegmentedControl(items: ["All", "Fiat", "Crypto"])
     
@@ -43,6 +41,17 @@ final class TradeViewController: UIViewController {
     private var secondsLeft: Int = 5
     
     private var observerId: UUID?
+    
+    private let currencyService: CurrencyService
+    
+    init(currencyService: CurrencyService) {
+        self.currencyService = currencyService
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
     
     deinit {
         if let id = observerId {

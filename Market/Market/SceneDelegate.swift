@@ -21,9 +21,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 extension SceneDelegate {
     func openRootViewController() -> UIViewController {
+        let wallet = Wallet()
+        
         let tabBarController = UITabBarController()
         
-        let historyViewController = HistoryViewController()
+        let historyViewController = HistoryViewController(wallet: wallet)
         historyViewController.title = "История"
         let historyNavigationController = UINavigationController(rootViewController: historyViewController)
         historyNavigationController.tabBarItem = UITabBarItem(
@@ -32,34 +34,16 @@ extension SceneDelegate {
             tag: 0
         )
         
-        let tradeViewController = TradeViewController()
-        tradeViewController.title = "Торговля"
-        let tradeNavigationController = UINavigationController(rootViewController: tradeViewController)
-        tradeNavigationController.tabBarItem = UITabBarItem(
-            title: "Торговля",
-            image: UIImage(systemName: "rublesign.arrow.trianglehead.counterclockwise.rotate.90"),
-            tag: 1
-        )
-        
         let graphViewController = GraphViewController()
         graphViewController.title = "График"
         let graphNavigationController = UINavigationController(rootViewController: graphViewController)
         graphNavigationController.tabBarItem = UITabBarItem(
             title: "График",
             image: UIImage(systemName: "chart.line.uptrend.xyaxis"),
-            tag: 2
+            tag: 1
         )
         
-        let exchangeViewController = ExchangeViewController(wallet: Wallet())
-        exchangeViewController.title = "График"
-        let exchangeNavigationController = UINavigationController(rootViewController: exchangeViewController)
-        exchangeNavigationController.tabBarItem = UITabBarItem(
-            title: "График",
-            image: UIImage(systemName: "chart.line.uptrend.xyaxis"),
-            tag: 3
-        )
-        
-        tabBarController.viewControllers = [historyNavigationController, tradeNavigationController, graphNavigationController, exchangeNavigationController]
+        tabBarController.viewControllers = [historyNavigationController, graphNavigationController]
         
         return tabBarController
     }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct balance {
+struct Balance {
     let name: String
     var value: Double
     var credit: Double
@@ -16,16 +16,16 @@ struct balance {
 final class Wallet {
     private let credit: Double = 1000
     
-    private var balances = [
-        balance(name: "USD", value: 10000, credit: 0),
-        balance(name: "BTC", value: 10000, credit: 0),
-        balance(name: "RUB", value: 10000, credit: 0),
-        balance(name: "ETH", value: 10000, credit: 0)
+    private var balances: [Balance] = [
+        Balance(name: "USD", value: 10000, credit: 0),
+        Balance(name: "BTC", value: 10000, credit: 0),
+        Balance(name: "RUB", value: 10000, credit: 0),
+        Balance(name: "ETH", value: 10000, credit: 0)
     ]
     
     private let queue = DispatchQueue(label: "wallet.sync.queue")
     
-    func getAllBalances() -> [balance] {
+    func getAllBalances() -> [Balance] {
         return queue.sync { balances }
     }
     

@@ -10,7 +10,16 @@ import UIKit
 final class HistoryViewController: UIViewController {
     private let controlsView = ControlsView()
     
-    let wallet = Wallet()
+    private let wallet: Wallet
+    
+    init(wallet: Wallet) {
+        self.wallet = wallet
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
     
     lazy var bots = [
         GCDBot(name: "BotBtcMaster", first: "BTC", second: "USD", wallet: wallet),
@@ -173,6 +182,17 @@ private extension HistoryViewController {
         vc.modalPresentationStyle = .pageSheet
         present(vc, animated: true)
     }
+    
+    @objc private func openCurrencyPair() {
+        let vc = TradeViewController(currencyService: currencyService)
+
+        vc.title = "Выбор валют"
+
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .pageSheet
+
+        present(nav, animated: true)
+    }
 }
 
 // MARK: - NavigationBar
@@ -191,9 +211,23 @@ private extension HistoryViewController {
             target: self,
             action: #selector(openWallet)
         )
+        
+        let randomButton = UIBarButtonItem(
+            image: UIImage(systemName: "shuffle"),
+            style: .plain,
+            target: self,
+            action: #selector(randomTapped)
+        )
+        
+        let pairButton = UIBarButtonItem(
+            image: UIImage(systemName: "arrow.left.arrow.right.circle"),
+            style: .plain,
+            target: self,
+            action: #selector(openCurrencyPair)
+        )
             
-        navigationItem.rightBarButtonItem = walletButton
-        navigationItem.leftBarButtonItem = resetButton
+        navigationItem.rightBarButtonItems = [pairButton, walletButton]
+        navigationItem.leftBarButtonItems = [resetButton, randomButton]
     }
 }
 
@@ -218,6 +252,6 @@ private extension HistoryViewController {
     }
     
     @objc private func handleSwipeUp() {
-        tabBarController?.selectedIndex = 2
+        tabBarController?.selectedIndex = 1
     }
 }
