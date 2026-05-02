@@ -9,22 +9,54 @@ import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
+    
+    let defaults = Defaults.shared
+    
+    let wallet = Wallet()
+    
+    let tabBarController = UITabBarController()
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
-        window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = SplashScreenViewController()
+        let window = UIWindow(windowScene: windowScene)
+        self.window = window
+        window.rootViewController = SplashScreenViewController()
         
-        window?.makeKeyAndVisible()
+        window.makeKeyAndVisible()
+    }
+}
+
+private extension SceneDelegate {
+    func setup() {
+        if defaults.isAutoLogin,
+           defaults.login != nil,
+           defaults.password != nil {
+            showMainApp()
+        } else {
+            showAuth()
+        }
+    }
+
+    func showAuth() {
+        let vc = AuthViewController()
+        vc.onSuccessLogin = { [weak self] in
+            self?.showMainApp()
+        }
+
+        window?.rootViewController = vc
+    }
+
+    func showMainApp() {
+        window?.rootViewController = createTabBar()
     }
 }
 
 extension SceneDelegate {
-    func openRootViewController() -> UIViewController {
-        let wallet = Wallet()
-        
-        let tabBarController = UITabBarController()
-        
+    func openRootViewController() {
+        setup()
+    }
+    
+    func createTabBar() -> UITabBarController {
         let historyViewController = HistoryViewController(wallet: wallet)
         historyViewController.title = "История"
         let historyNavigationController = UINavigationController(rootViewController: historyViewController)
@@ -43,7 +75,19 @@ extension SceneDelegate {
             tag: 1
         )
         
-        tabBarController.viewControllers = [historyNavigationController, graphNavigationController]
+        let settingsViewController = SettingsViewController()
+        settingsViewController.title = "Настройки"
+        settingsViewController.onLogout = { [weak self] in
+            self?.showAuth()
+        }
+        let settingsNavigationController = UINavigationController(rootViewController: settingsViewController)
+        settingsNavigationController.tabBarItem = UITabBarItem(
+            title: "Настройки",
+            image: UIImage(systemName: "transmission"),
+            tag: 2
+        )
+        
+        tabBarController.viewControllers = [historyNavigationController, graphNavigationController, settingsNavigationController]
         
         return tabBarController
     }

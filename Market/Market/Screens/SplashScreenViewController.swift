@@ -64,10 +64,9 @@ private extension SplashScreenViewController {
     func openMainAfterDelay() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
 
-            let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate
+            guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else { return }
 
-            sceneDelegate?.window?.rootViewController =
-                sceneDelegate?.openRootViewController()
+            sceneDelegate.openRootViewController()
         }
     }
 }
