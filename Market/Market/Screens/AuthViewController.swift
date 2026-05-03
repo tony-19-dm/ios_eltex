@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import Combine
 
 final class AuthViewController: UIViewController {
     var onSuccessLogin: (() -> Void)?
@@ -19,6 +20,11 @@ final class AuthViewController: UIViewController {
     private let passwordField = UITextField()
     private let actionButton = UIButton(type: .system)
     private let modeSwitch = UISegmentedControl(items: ["Вход", "Регистрация"])
+    
+    @Published var currentLogin: String = ""
+    @Published var currentPassword: String = ""
+    
+    private var cancelabels = Set<AnyCancellable>()
 
     private var isRegisterMode: Bool {
         modeSwitch.selectedSegmentIndex == 1
@@ -29,6 +35,7 @@ final class AuthViewController: UIViewController {
         setupUI()
         makeConstraints()
         setupTap()
+        setupBindings()
     }
 }
 
@@ -47,6 +54,7 @@ private extension AuthViewController {
         actionButton.setTitle("Вперед", for: .normal)
         actionButton.titleLabel?.font = .boldSystemFont(ofSize: 18)
         actionButton.addTarget(self, action: #selector(handleAction), for: .touchUpInside)
+        actionButton.isEnabled = false
 
         modeSwitch.selectedSegmentIndex = 0
         
@@ -93,21 +101,10 @@ private extension AuthViewController {
     }
 
     @objc func handleAction() {
-        guard
-            let login = loginField.text?.trimmingCharacters(in: .whitespaces),
-            let password = passwordField.text?.trimmingCharacters(in: .whitespaces),
-            !login.isEmpty,
-            !password.isEmpty
-        else {
-            return
-        }
-
-        guard validate(login: login, password: password) else { return }
-        
         if isRegisterMode {
-            register(login: login, password: password)
+            register(login: currentLogin, password: currentPassword)
         } else {
-            loginUser(login: login, password: password)
+            loginUser(login: currentLogin, password: currentPassword)
         }
     }
 
@@ -136,35 +133,51 @@ private extension AuthViewController {
     
     func validate(login: String, password: String) -> Bool {
         if login.count < 3 {
-            showError("Логин минимум 3 символа")
             return false
         }
 
         if login.contains(" ") {
-            showError("Логин не должен содержать пробелы")
             return false
         }
         
         if password.contains(" ") {
-            showError("Пароль не должен содержать пробелы")
             return false
         }
 
         if password.count < 6 {
-            showError("Пароль минимум 6 символов")
             return false
         }
 
         return true
     }
-    
-    func showError(_ text: String) {
-        let alert = UIAlertController(
-            title: "Ошибка",
-            message: text,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
+}
+
+private extension AuthViewController {
+    func setupBindings() {
+        NotificationCenter.default
+            .publisher(for: UITextField.textDidChangeNotification, object: loginField)
+            .map({ ($0.object as? UITextField)?.text ?? "" })
+            .sink { [weak self] text in
+                self?.currentLogin = text
+            }
+            .store(in: &cancelabels)
+        
+        NotificationCenter.default
+            .publisher(for: UITextField.textDidChangeNotification, object: passwordField)
+            .map({ ($0.object as? UITextField)?.text ?? "" })
+            .sink { [weak self] text in
+                self?.currentPassword = text
+            }
+            .store(in: &cancelabels)
+        
+        Publishers.CombineLatest($currentLogin, $currentPassword)
+            .map { [weak self] login, password in
+                self?.validate(login: login, password: password) ?? false
+            }
+            .receive(on: RunLoop.main)
+            .sink { [weak self] isValid in
+                self?.actionButton.isEnabled = isValid
+            }
+            .store(in: &cancelabels)
     }
 }
