@@ -144,6 +144,11 @@ private extension AuthViewController {
             showError("Логин не должен содержать пробелы")
             return false
         }
+        
+        if password.contains(" ") {
+            showError("Пароль не должен содержать пробелы")
+            return false
+        }
 
         if password.count < 6 {
             showError("Пароль минимум 6 символов")
