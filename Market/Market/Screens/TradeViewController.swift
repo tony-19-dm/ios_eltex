@@ -52,6 +52,8 @@ final class TradeViewController: UIViewController {
     private var rate: Double = 1
     private var timer: Timer?
     private var secondsLeft = 5
+    
+    private var p2pCoordinator: P2PCoordinator?
 
     init(currencyService: CurrencyService, wallet: Wallet) {
         self.currencyService = currencyService
@@ -232,15 +234,19 @@ private extension TradeViewController {
             return
         }
 
-        let vc = P2PViewController(
+        guard let navController = navigationController else { return }
+
+        let coordinator = P2PCoordinator(
+            navigationController: navController,
             wallet: wallet,
             from: from,
             to: to
         )
 
-        navigationController?.pushViewController(vc, animated: true)
+        p2pCoordinator = coordinator
+        coordinator.start()
     }
-
+    
     @objc func filterChanged() {
         switch filterControl.selectedSegmentIndex {
         case 1:

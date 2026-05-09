@@ -66,3 +66,18 @@ final class NetworkService {
         task.resume()
     }
 }
+
+extension NetworkError {
+    var localizedMessage: String {
+        switch self {
+        case .noInternet:
+            return "Нет подключения к интернету"
+        case .parsingError:
+            return "Что-то пошло не так, попробуйте позже"
+        case .unauthorized:
+            return "Нет прав на просмотр данного раздела"
+        default:
+            return "Неизвестная ошибка"
+        }
+    }
+}
