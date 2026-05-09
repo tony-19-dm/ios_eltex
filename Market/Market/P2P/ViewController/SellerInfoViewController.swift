@@ -74,12 +74,12 @@ final class SellerInfoViewController: UIViewController {
     }
 
     private func populate() {
-        nameLabel.text    = viewModel.sellerName
-        idLabel.text      = "ID: \(viewModel.sellerId)"
-        rateLabel.text    = "Курс: \(viewModel.rate)"
+        nameLabel.text = viewModel.sellerName
+        idLabel.text = "ID: \(viewModel.sellerId)"
+        rateLabel.text = "Курс: \(viewModel.rate)"
         reserveLabel.text = "Резерв: \(viewModel.reserve)"
-        ratingLabel.text  = "Рейтинг: \(viewModel.rating)"
-        tradesLabel.text  = "Сделок завершено: \(viewModel.completedTrades)"
-        memberLabel.text  = "На платформе с: \(viewModel.memberSince)"
+        ratingLabel.text = "Рейтинг: \(viewModel.rating)"
+        tradesLabel.text = "Сделок завершено: \(viewModel.completedTrades)"
+        memberLabel.text = "На платформе с: \(viewModel.memberSince)"
     }
 }
