@@ -13,6 +13,8 @@ enum NetworkError: Error {
     case unauthorized
     case serverError(code: Int)
     case unknown
+    case invalidInput
+    case insufficientReserve
 }
 
 struct ExchangeRateDTO: Decodable {
@@ -20,7 +22,6 @@ struct ExchangeRateDTO: Decodable {
 }
 
 final class NetworkService {
-
     func request<T: Decodable>(
         url: URL,
         completion: @escaping (Result<T, NetworkError>) -> Void
@@ -76,6 +77,10 @@ extension NetworkError {
             return "Что-то пошло не так, попробуйте позже"
         case .unauthorized:
             return "Нет прав на просмотр данного раздела"
+        case .invalidInput:
+            return "Введите корректную сумму"
+        case .insufficientReserve:
+            return "Сумма превышает резерв продавца"
         default:
             return "Неизвестная ошибка"
         }

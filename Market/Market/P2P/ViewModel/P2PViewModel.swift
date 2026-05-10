@@ -10,20 +10,25 @@ import Foundation
 final class P2PViewModel {
     var onOffersUpdated: (() -> Void)?
     var onError: ((String) -> Void)?
-    var onTradeSuccess: (() -> Void)?
+    var onTradeSuccess: ((String) -> Void)?
 
     var onOfferSelected: ((P2POffer) -> Void)?
 
     private(set) var offers: [P2POffer] = []
 
-    private let service: P2PService
-    private let wallet: Wallet
+    private let fetchOffers: FetchOffers
+    private let performTrade: PerformTrade
     private let from: String
     private let to: String
 
-    init(service: P2PService, wallet: Wallet, from: String, to: String) {
-        self.service = service
-        self.wallet = wallet
+    init(
+        fetchOffers: FetchOffers,
+        performTrade: PerformTrade,
+        from: String,
+        to: String
+    ) {
+        self.fetchOffers = fetchOffers
+        self.performTrade = performTrade
         self.from = from
         self.to = to
     }
@@ -37,25 +42,33 @@ final class P2PViewModel {
     }
 
     func performTrade(offer: P2POffer, amount: Double) {
-        let success = Bool.random()
+        performTrade.execute(
+            offer: offer,
+            amount: amount,
+            from: from,
+            to: to
+        ) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let credited):
+                    let message = "Вам зачислено: \(String(format: "%.4f", credited))"
+                    self?.onTradeSuccess?(message)
 
-        if success {
-            wallet.ensureAccount(name: from)
-            wallet.ensureAccount(name: to)
-            wallet.updateBalance(from: from, to: to, amount: amount, rate: offer.rate)
-            onTradeSuccess?()
-        } else {
-            onError?("Ошибка при выполнении обмена. Попробуйте ещё раз.")
+                case .failure(let error):
+                    self?.onError?(error.localizedMessage)
+                }
+            }
         }
     }
 
     private func loadOffers() {
-        service.loadOffers(from: from, to: to) { [weak self] result in
+        fetchOffers.execute(from: from, to: to) { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let offers):
                     self?.offers = offers
                     self?.onOffersUpdated?()
+
                 case .failure(let error):
                     self?.onError?(error.localizedMessage)
                 }

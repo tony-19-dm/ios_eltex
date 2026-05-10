@@ -48,8 +48,8 @@ final class P2PViewController: UIViewController {
             self?.showError(message)
         }
 
-        viewModel.onTradeSuccess = { [weak self] in
-            self?.showSuccess()
+        viewModel.onTradeSuccess = { [weak self] message in
+            self?.showSuccess(message: message)
         }
     }
 
@@ -59,8 +59,8 @@ final class P2PViewController: UIViewController {
         present(alert, animated: true)
     }
 
-    private func showSuccess() {
-        let alert = UIAlertController(title: "Успех", message: "Обмен выполнен", preferredStyle: .alert)
+    private func showSuccess(message: String) {
+        let alert = UIAlertController(title: "Успех", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }

@@ -14,12 +14,7 @@ final class P2PCoordinator: Coordinator {
     private let from: String
     private let to: String
 
-    init(
-        navigationController: UINavigationController,
-        wallet: Wallet,
-        from: String,
-        to: String
-    ) {
+    init(navigationController: UINavigationController, wallet: Wallet, from: String, to: String) {
         self.navigationController = navigationController
         self.wallet = wallet
         self.from = from
@@ -31,9 +26,14 @@ final class P2PCoordinator: Coordinator {
     }
 
     private func showOfferList() {
+        let repository = P2PRepositoryImpl(service: P2PService())
+
+        let fetch = FetchOffersImpl(repository: repository)
+        let trade = PerformTradeImpl(wallet: wallet)
+
         let viewModel = P2PViewModel(
-            service: P2PService(),
-            wallet: wallet,
+            fetchOffers: fetch,
+            performTrade: trade,
             from: from,
             to: to
         )
