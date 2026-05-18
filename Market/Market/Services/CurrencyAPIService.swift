@@ -9,13 +9,15 @@ import Foundation
 
 final class CurrencyAPIService {
     private let network = NetworkService()
+    
+    private var urlString: String = ""
 
     func fetchRate(
         from: String,
         to: String,
         completion: @escaping (Result<Double, NetworkError>) -> Void
     ) {
-        let urlString = "https://api.frankfurter.app/latest?from=\(from)&to=\(to)"
+        urlString = "https://api.frankfurter.app/latest?from=\(from)&to=\(to)"
 
         guard let url = URL(string: urlString) else {
             completion(.failure(.parsingError))

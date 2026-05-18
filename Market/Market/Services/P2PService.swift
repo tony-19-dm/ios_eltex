@@ -18,8 +18,18 @@ struct P2POffer {
     let rate: Double
 }
 
-final class P2PService {
+protocol P2PServiceProtocol {
+    func loadOffers(
+        from: String,
+        to: String,
+        completion: @escaping (Result<[P2POffer], NetworkError>) -> Void
+    )
+}
+
+final class P2PService: P2PServiceProtocol {
     private let api = CurrencyAPIService()
+    private var sellers = [] as [Seller]
+    private var offers = [] as [P2POffer]
 
     func loadOffers(
         from: String,
@@ -29,7 +39,7 @@ final class P2PService {
         api.fetchRate(from: from, to: to) { result in
             switch result {
             case .success(let baseRate):
-                let sellers = (1...10).map { i in
+                self.sellers = (1...10).map { i in
                     Seller(
                         id: UUID().uuidString,
                         name: "Seller \(i)",
@@ -37,7 +47,7 @@ final class P2PService {
                     )
                 }
 
-                let offers = sellers.map { seller in
+                self.offers = self.sellers.map { seller in
                     let spread = Double.random(in: -0.05...0.03)
                     return P2POffer(
                         seller: seller,
@@ -46,7 +56,7 @@ final class P2PService {
                 }
                 .sorted { $0.rate > $1.rate }
 
-                completion(.success(offers))
+                completion(.success(self.offers))
 
             case .failure(let error):
                 completion(.failure(error))

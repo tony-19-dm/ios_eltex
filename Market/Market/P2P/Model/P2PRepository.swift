@@ -16,9 +16,9 @@ protocol P2PRepository {
 }
 
 final class P2PRepositoryImpl: P2PRepository {
-    private let service: P2PService
+    private let service: P2PServiceProtocol
 
-    init(service: P2PService = P2PService()) {
+    init(service: P2PServiceProtocol = P2PService()) {
         self.service = service
     }
 

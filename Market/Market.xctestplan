@@ -1,0 +1,30 @@
+{
+  "configurations" : [
+    {
+      "id" : "D0378954-FA21-4EF0-820D-8A1AF1069E50",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Market.xcodeproj",
+      "identifier" : "AA7D397C2F6A6DFB00362FDB",
+      "name" : "Market"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Market.xcodeproj",
+        "identifier" : "AA99FA662FBAE63D00EC3C51",
+        "name" : "P2PTests"
+      }
+    }
+  ],
+  "version" : 1
+}
