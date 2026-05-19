@@ -34,7 +34,6 @@ final class P2PViewModelTests: XCTestCase {
     }
 
     // MARK: - viewDidLoad
-
     func test_viewDidLoad_callsFetchOffersWithCorrectCurrencies() {
         sut.viewDidLoad()
 
@@ -84,7 +83,6 @@ final class P2PViewModelTests: XCTestCase {
     }
 
     // MARK: - selectOffer
-
     func test_selectOffer_triggersOnOfferSelected() {
         let offer = makeOffer()
         var selectedOffer: P2POffer?
@@ -101,7 +99,6 @@ final class P2PViewModelTests: XCTestCase {
     }
 
     // MARK: - performTrade – success
-
     func test_performTrade_success_callsOnTradeSuccess() {
         performTrade.stubbedResult = .success(credited: 111.1234)
 
@@ -135,7 +132,6 @@ final class P2PViewModelTests: XCTestCase {
     }
 
     // MARK: - performTrade – failure
-
     func test_performTrade_failure_insufficientReserve_callsOnError() {
         performTrade.stubbedResult = .failure(.insufficientReserve)
 

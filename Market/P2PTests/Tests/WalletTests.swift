@@ -48,11 +48,10 @@ final class WalletTests: XCTestCase {
     }
  
     func test_updateBalance_appliesCreditWhenFromBalanceInsufficient() {
-        // Drain USD to 0
         sut.updateBalance(from: "USD", to: "RUB", amount: 10000, rate: 1)
         XCTAssertEqual(sut.getBalance(name: "USD"), 0)
  
-        // Credit (+1000) should be added, then 500 deducted → 500 remaining
+        // Credit +1000, - 500 → 500 remaining
         sut.updateBalance(from: "USD", to: "RUB", amount: 500, rate: 1)
         XCTAssertEqual(sut.getBalance(name: "USD"), 500, accuracy: 0.001)
     }

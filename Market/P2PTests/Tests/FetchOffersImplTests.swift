@@ -35,7 +35,7 @@ final class FetchOffersImplTests: XCTestCase {
         }
  
         XCTAssertEqual(result?.count, 2)
-        XCTAssertEqual(result?.first?.rate, 92)   // sorted descending
+        XCTAssertEqual(result?.first?.rate, 92)
         XCTAssertEqual(result?.last?.rate, 88)
     }
  
