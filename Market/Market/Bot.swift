@@ -123,4 +123,9 @@ final class TradeBot: GenerateTradeProtocol {
         activePrice = nil
         return history
     }
+    
+    func reset() {
+        balance = 10000.0
+        activePrice = nil
+    }
 }
