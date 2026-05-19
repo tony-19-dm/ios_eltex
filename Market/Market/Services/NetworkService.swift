@@ -26,32 +26,43 @@ final class NetworkService {
         url: URL,
         completion: @escaping (Result<T, NetworkError>) -> Void
     ) {
+        AppLogger.network.requestStarted(url: url)
+
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error as NSError? {
                 if error.domain == NSURLErrorDomain {
+                    AppLogger.network.requestFailure(url: url, err: .noInternet)
                     completion(.failure(.noInternet))
                 } else {
+                    AppLogger.network.requestFailure(url: url, err: .unknown)
                     completion(.failure(.unknown))
                 }
                 return
             }
 
             guard let http = response as? HTTPURLResponse else {
+                AppLogger.network.requestFailure(url: url, err: .unknown)
                 completion(.failure(.unknown))
                 return
             }
 
+            AppLogger.network.requestSuccess(url: url, statusCode: http.statusCode)
+
             if (400...499).contains(http.statusCode) {
+                AppLogger.network.requestFailure(url: url, err: .parsingError)
                 completion(.failure(.parsingError))
                 return
             }
 
             if (500...599).contains(http.statusCode) {
-                completion(.failure(.serverError(code: http.statusCode)))
+                let networkError = NetworkError.serverError(code: http.statusCode)
+                AppLogger.network.requestFailure(url: url, err: networkError)
+                completion(.failure(networkError))
                 return
             }
 
             guard let data = data else {
+                AppLogger.network.requestParsingFailure(url: url)
                 completion(.failure(.parsingError))
                 return
             }
@@ -60,6 +71,7 @@ final class NetworkService {
                 let decoded = try JSONDecoder().decode(T.self, from: data)
                 completion(.success(decoded))
             } catch {
+                AppLogger.network.requestParsingFailure(url: url)
                 completion(.failure(.parsingError))
             }
         }

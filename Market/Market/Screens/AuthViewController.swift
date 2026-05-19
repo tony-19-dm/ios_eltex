@@ -113,17 +113,22 @@ private extension AuthViewController {
         defaults.password = password
         defaults.isAutoLogin = true
 
+        AppLogger.auth.registerSuccess(login: login)
         onSuccessLogin?()
     }
 
     func loginUser(login: String, password: String) {
+        AppLogger.auth.loginAttempt(login: login)
+        
         guard
             login == defaults.login,
             password == defaults.password
         else {
+            AppLogger.auth.loginFailure(login: login)
             return
         }
-
+        
+        AppLogger.auth.loginSuccess(login: login)
         onSuccessLogin?()
     }
 
@@ -133,18 +138,22 @@ private extension AuthViewController {
     
     func validate(login: String, password: String) -> Bool {
         if login.count < 3 {
+            AppLogger.auth.validationFailed(login: login, reason: .loginTooShort)
             return false
         }
 
         if login.contains(" ") {
+            AppLogger.auth.validationFailed(login: login, reason: .loginContainsSpaces)
             return false
         }
         
         if password.contains(" ") {
+            AppLogger.auth.validationFailed(login: login, reason: .passwordContainsSpaces)
             return false
         }
 
         if password.count < 6 {
+            AppLogger.auth.validationFailed(login: login, reason: .passwordTooShort)
             return false
         }
 
