@@ -18,11 +18,17 @@ final class ControlsView: UIView {
     var incomeLabel = UILabel()
     let button = UIButton()
     
+    let currecnyStackView = UIStackView()
+    var firstCurrencyLabel = UILabel()
+    var secondCurrencyLabel = UILabel()
+    
     let tableView: UITableView = UITableView()
     let emptyDataLabel = UILabel()
     
     // MARK: - Actions
     var onRunTapped: (() -> Void)?
+    var onFirstCurrencyTapped: (() -> Void)?
+    var onSecondCurrencyTapped: (() -> Void)?
     
     // MARK: - Init
     override init(frame: CGRect) {
@@ -71,6 +77,26 @@ private extension ControlsView {
         button.setTitle("Run", for: .normal)
         button.layer.cornerRadius = height / 2
         button.addTarget(self, action: #selector(handleButtonTapped), for: .touchUpInside)
+        
+        currecnyStackView.axis = .horizontal
+        currecnyStackView.spacing = 8
+        firstCurrencyLabel.text = "BTC"
+        secondCurrencyLabel.text = "USD"
+        
+        firstCurrencyLabel.setContentHuggingPriority(.required, for: .horizontal)
+        firstCurrencyLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        
+        secondCurrencyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        secondCurrencyLabel.textAlignment = .left
+        
+        firstCurrencyLabel.isUserInteractionEnabled = true
+        secondCurrencyLabel.isUserInteractionEnabled = true
+
+        let firstTap = UITapGestureRecognizer(target: self, action: #selector(firstTapped))
+        let secondTap = UITapGestureRecognizer(target: self, action: #selector(secondTapped))
+
+        firstCurrencyLabel.addGestureRecognizer(firstTap)
+        secondCurrencyLabel.addGestureRecognizer(secondTap)
     }
     
     func addSubviews() {
@@ -84,6 +110,9 @@ private extension ControlsView {
         horisontalStackView.addArrangedSubview(currencyLabel)
         verticalStackView.addArrangedSubview(horisontalStackView)
         verticalStackView.addArrangedSubview(incomeLabel)
+        verticalStackView.addArrangedSubview(currecnyStackView)
+        currecnyStackView.addArrangedSubview(firstCurrencyLabel)
+        currecnyStackView.addArrangedSubview(secondCurrencyLabel)
     }
     
     func makeConstraints() {
@@ -91,6 +120,7 @@ private extension ControlsView {
         makeEmptyDataLabelConstraints()
         makeTableViewConstraints()
         makeButtonConstraints()
+        makeCurrencyStackViewConstraints()
     }
 }
 
@@ -134,12 +164,26 @@ private extension ControlsView {
             button.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
     }
+    
+    func makeCurrencyStackViewConstraints() {
+        currecnyStackView.isLayoutMarginsRelativeArrangement = false
+        firstCurrencyLabel.translatesAutoresizingMaskIntoConstraints = false
+        secondCurrencyLabel.translatesAutoresizingMaskIntoConstraints = false
+    }
 }
 
 // MARK: - Actions
 private extension ControlsView {
     @objc func handleButtonTapped() {
         onRunTapped?()
+    }
+    
+    @objc private func firstTapped() {
+        onFirstCurrencyTapped?()
+    }
+
+    @objc private func secondTapped() {
+        onSecondCurrencyTapped?()
     }
 }
 

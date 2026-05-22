@@ -47,12 +47,14 @@ final class CurrencyService: NSObject {
     var favorites: Set<String> = []
     
     var currentFilter: CurrencyType? = nil
-    var onUpdate: (() -> Void)?
+    private var observers: [UUID: () -> Void] = [:]
     
     override init() {
         super.init()
         currencies = CurrencyGenerator.generate(count: 102)
         filteredCurrencies = currencies
+        
+        randomFavorites()
     }
     
     func applyFilter(type: CurrencyType? = nil, favoritesOnly: Bool = false) {
@@ -68,7 +70,7 @@ final class CurrencyService: NSObject {
         }
         
         filteredCurrencies = result
-        onUpdate?()
+        notify()
     }
     
     func applyFavoritesFilter(isActive: Bool) {
@@ -91,6 +93,43 @@ final class CurrencyService: NSObject {
             favorites.insert(currency.name)
         }
         applyFavoritesFilter(isActive: false)
+    }
+    
+    func addObserver(_ observer: @escaping () -> Void) -> UUID {
+        let id = UUID()
+        observers[id] = observer
+        return id
+    }
+
+    func removeObserver(id: UUID) {
+        observers.removeValue(forKey: id)
+    }
+
+    private func notify() {
+        observers.values.forEach { $0() }
+    }
+    
+    func resetSelection() {
+        selectedFirst = nil
+        selectedSecond = nil
+        isSelectingFirst = true
+        notify()
+    }
+    
+    func randomFavorites() {
+        for _ in 0..<10 {
+            guard let favorite = currencies.randomElement() else { return }
+            favorites.insert(favorite.name)
+        }
+    }
+    
+    func randomPair() {
+        let shuffled = currencies.shuffled()
+        
+        selectedFirst = shuffled.first
+        selectedSecond = shuffled.dropFirst().first
+        
+        notify()
     }
 }
 
@@ -130,7 +169,7 @@ extension CurrencyService: UICollectionViewDelegate {
             selectedSecond = currency
         }
         collectionView.reloadData()
-        onUpdate?()
+        notify()
     }
 }
 

@@ -42,6 +42,14 @@ final class TradeViewController: UIViewController {
     private var timer: Timer?
     private var secondsLeft: Int = 5
     
+    private var observerId: UUID?
+    
+    deinit {
+        if let id = observerId {
+            currencyService.removeObserver(id: id)
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -155,7 +163,7 @@ private extension TradeViewController {
     }
     
     func bind() {
-        currencyService.onUpdate = { [weak self] in
+        observerId = currencyService.addObserver { [weak self] in
             self?.updateTopUI()
             self?.collectionView.reloadData()
         }
