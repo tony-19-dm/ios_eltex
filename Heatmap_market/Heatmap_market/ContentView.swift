@@ -14,7 +14,6 @@ struct Currency: Identifiable {
 }
 
 struct ContentView: View {
-
     let currencies: [Currency] = [
         Currency(name: "BTC", color: Color(red: 0, green: 1, blue: 0)),
         Currency(name: "ETH", color: Color(red: 0.5, green: 0, blue: 0)),
