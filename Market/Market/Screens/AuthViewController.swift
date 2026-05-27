@@ -20,6 +20,7 @@ final class AuthViewController: UIViewController {
     private let passwordField = UITextField()
     private let actionButton = UIButton(type: .system)
     private let modeSwitch = UISegmentedControl(items: ["Вход", "Регистрация"])
+    private let helpButton = UIButton(type: .system)
     
     @Published var currentLogin: String = ""
     @Published var currentPassword: String = ""
@@ -73,11 +74,15 @@ private extension AuthViewController {
         icon.translatesAutoresizingMaskIntoConstraints = false
         loginField.translatesAutoresizingMaskIntoConstraints = false
         passwordField.translatesAutoresizingMaskIntoConstraints = false
+        
+        helpButton.setTitle("Не получается войти?", for: .normal)
+        helpButton.addTarget(self, action: #selector(openFeedback), for: .touchUpInside)
+        stackView.addArrangedSubview(helpButton)
     }
 }
 
 private extension AuthViewController {
-    func makeConstraints () {
+    func makeConstraints() {
         NSLayoutConstraint.activate([
             icon.heightAnchor.constraint(equalToConstant: 100),
             icon.widthAnchor.constraint(equalToConstant: 100),
@@ -89,7 +94,11 @@ private extension AuthViewController {
             loginField.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
             loginField.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
             passwordField.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-            passwordField.trailingAnchor.constraint(equalTo: stackView.trailingAnchor)
+            passwordField.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+            actionButton.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+            actionButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+            helpButton.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+            helpButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor)
         ])
     }
 }
@@ -158,6 +167,11 @@ private extension AuthViewController {
         }
 
         return true
+    }
+    
+    @objc func openFeedback() {
+        let vc = FeedbackViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 

@@ -157,6 +157,15 @@ private extension TradeViewController {
         )
 
         navigationItem.rightBarButtonItem = p2pButton
+        
+        let heatmapButton = UIBarButtonItem(
+            title: "Heatmap",
+            style: .plain,
+            target: self,
+            action: #selector(openHeatmap)
+        )
+
+        navigationItem.leftBarButtonItem = heatmapButton
     }
 
     func addSubviews() {
@@ -245,6 +254,11 @@ private extension TradeViewController {
 
         p2pCoordinator = coordinator
         coordinator.start()
+    }
+    
+    @objc func openHeatmap() {
+        let vc = HeatmapViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     @objc func filterChanged() {

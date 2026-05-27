@@ -42,8 +42,9 @@ private extension SceneDelegate {
         vc.onSuccessLogin = { [weak self] in
             self?.showMainApp()
         }
+        let nav = UINavigationController(rootViewController: vc)
 
-        window?.rootViewController = vc
+        window?.rootViewController = nav
     }
 
     func showMainApp() {
