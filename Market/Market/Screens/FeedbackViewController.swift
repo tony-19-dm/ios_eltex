@@ -9,6 +9,10 @@ import Foundation
 import UIKit
 
 final class FeedbackViewController: UIViewController {
+    private let viewModel = FeedbackViewModel()
+
+    private let topicsView = SupportTopicView()
+    
     private let nameField = UITextField()
     private let textView = UITextView()
 
@@ -47,6 +51,8 @@ private extension FeedbackViewController {
         textView.layer.borderColor = UIColor.systemGray4.cgColor
         textView.layer.cornerRadius = 12
 
+        topicsView.delegate = self
+        
         checkboxButton.addTarget(
             self,
             action: #selector(toggleCheckbox),
@@ -66,6 +72,7 @@ private extension FeedbackViewController {
         let stack = UIStackView(arrangedSubviews: [
             nameField,
             textView,
+            topicsView,
             checkboxButton,
             agreementLabel,
             sendButton
@@ -79,6 +86,7 @@ private extension FeedbackViewController {
 
         stack.translatesAutoresizingMaskIntoConstraints = false
         overlayView.translatesAutoresizingMaskIntoConstraints = false
+        topicsView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
             stack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
@@ -90,7 +98,9 @@ private extension FeedbackViewController {
             overlayView.topAnchor.constraint(equalTo: view.topAnchor),
             overlayView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             overlayView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            overlayView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            overlayView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            topicsView.heightAnchor.constraint(equalToConstant: 220)
         ])
     }
 
@@ -190,5 +200,16 @@ private extension FeedbackViewController {
 
     @objc func closeAgreement() {
         overlayView.isHidden = true
+    }
+}
+
+extension FeedbackViewController: SupportTopicViewDelegate {
+    func supportTopicView(
+        _ view: SupportTopicView,
+        didUpdateSelectedTopics topics: [String]
+    ) {
+        viewModel.selectedTopics = topics
+
+        print("Выбрано:", topics)
     }
 }

@@ -47,6 +47,9 @@ struct FeedbackView: View {
                         .foregroundColor(.red)
                         .font(.caption)
                 }
+                
+                SupportTopicRepresentable(selectedTopics: $viewModel.selectedTopics)
+                    .frame(height: 220)
 
                 Toggle(
                     isOn: $viewModel.isAgreementAccepted

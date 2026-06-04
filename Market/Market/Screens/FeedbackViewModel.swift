@@ -13,6 +13,8 @@ final class FeedbackViewModel: ObservableObject {
     @Published var message = ""
     @Published var isAgreementAccepted = false
 
+    @Published var selectedTopics: [String] = []
+
     @Published var nameError: String?
     @Published var messageError: String?
 
