@@ -67,4 +67,13 @@ final class FeedbackViewModel: ObservableObject {
     func clearMessageError() {
         messageError = nil
     }
+    
+    func resetForm() {
+        name = ""
+        message = ""
+        isAgreementAccepted = false
+        selectedTopics = []
+        nameError = nil
+        messageError = nil
+    }
 }

@@ -10,10 +10,9 @@ import SwiftUI
 
 struct FeedbackView: View {
     @StateObject private var viewModel = FeedbackViewModel()
-
     @FocusState private var focusedField: Field?
-
     @State private var showAgreement = false
+    @State private var showBotCheck = false
 
     var body: some View {
         ZStack {
@@ -21,15 +20,9 @@ struct FeedbackView: View {
                 TextField("Имя", text: $viewModel.name)
                     .textFieldStyle(.roundedBorder)
                     .focused($focusedField, equals: .name)
-                    .onTapGesture {
-                        viewModel.clearNameError()
-                    }
+                    .onTapGesture { viewModel.clearNameError() }
 
-                if let error = viewModel.nameError {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .font(.caption)
-                }
+                errorLabel(viewModel.nameError)
 
                 TextEditor(text: $viewModel.message)
                     .frame(height: 150)
@@ -38,83 +31,106 @@ struct FeedbackView: View {
                             .stroke(.gray)
                     )
                     .focused($focusedField, equals: .message)
-                    .onTapGesture {
-                        viewModel.clearMessageError()
-                    }
+                    .onTapGesture { viewModel.clearMessageError() }
 
-                if let error = viewModel.messageError {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .font(.caption)
-                }
-                
+                errorLabel(viewModel.messageError)
+
                 SupportTopicRepresentable(selectedTopics: $viewModel.selectedTopics)
                     .frame(height: 220)
 
-                Toggle(
-                    isOn: $viewModel.isAgreementAccepted
-                ) {
+                Toggle(isOn: $viewModel.isAgreementAccepted) {
                     agreementText
                 }
 
                 Button("Отправить") {
-
+                    showBotCheck = true
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(!viewModel.canSend)
+                .animation(.easeInOut(duration: 0.25), value: viewModel.canSend)
+                .scaleEffect(viewModel.canSend ? 1.0 : 0.97)
 
                 Spacer()
             }
             .padding()
 
             if showAgreement {
-                Color.black.opacity(0.4)
-                    .ignoresSafeArea()
+                agreementOverlay
+            }
 
-                VStack {
-                    ScrollView {
-                        Text("""
-                            Соглашение об обработке персональных данных
-
-                            Тут должен быть ну оооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооочень длинный текст...
-                            """)
-                        .padding()
+            if showBotCheck {
+                BotCheckView(
+                    onSuccess: {
+                        showBotCheck = false
+                        viewModel.resetForm()
+                    },
+                    onFailure: {
+                        showBotCheck = false
                     }
-
-                    Button("Закрыть") {
-                        showAgreement = false
-                    }
-                }
-                .frame(width: 320, height: 400)
-                .background(.white)
-                .cornerRadius(16)
+                )
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
             }
         }
+        .animation(.easeInOut(duration: 0.3), value: showBotCheck)
         .onChange(of: focusedField) { oldValue, newValue in
-            if oldValue == .name {
-                viewModel.validateName()
-            }
+            if oldValue == .name    { viewModel.validateName() }
+            if oldValue == .message { viewModel.validateMessage() }
+        }
+        .navigationTitle("Обратная связь")
+    }
 
-            if oldValue == .message {
-                viewModel.validateMessage()
-            }
+    @ViewBuilder
+    private func errorLabel(_ text: String?) -> some View {
+        if let text {
+            Text(text)
+                .foregroundColor(.red)
+                .font(.caption)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .transition(
+                    .asymmetric(
+                        insertion: .push(from: .top).combined(with: .opacity),
+                        removal:   .push(from: .bottom).combined(with: .opacity)
+                    )
+                )
         }
     }
 
     private var agreementText: some View {
         HStack(spacing: 0) {
             Text("Я согласен на ")
-
             Text("обработку данных")
                 .foregroundColor(.blue)
-                .onTapGesture {
-                    showAgreement = true
-                }
+                .onTapGesture { showAgreement = true }
         }
+    }
+
+    private var agreementOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+                .onTapGesture { showAgreement = false }
+
+            VStack {
+                ScrollView {
+                    Text("""
+                        Соглашение об обработке персональных данных
+
+                        Тут должен быть ну оооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооочень длинный текст...
+                        """)
+                    .padding()
+                }
+                Button("Закрыть") { showAgreement = false }
+                    .padding(.bottom)
+            }
+            .frame(width: 320, height: 400)
+            .background(.background)
+            .cornerRadius(16)
+        }
+        .transition(.opacity)
     }
 }
 
-enum Field {
+enum Field: Hashable {
     case name
     case message
 }
