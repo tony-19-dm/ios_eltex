@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import Combine
+import SwiftUI
 
 final class AuthViewController: UIViewController {
     var onSuccessLogin: (() -> Void)?
@@ -170,7 +171,10 @@ private extension AuthViewController {
     }
     
     @objc func openFeedback() {
-        let vc = FeedbackViewController()
+        let view = FeedbackView()
+
+        let vc = UIHostingController(rootView: view)
+
         navigationController?.pushViewController(vc, animated: true)
     }
 }
