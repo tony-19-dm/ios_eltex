@@ -40,6 +40,11 @@ final class CurrencyCell: UICollectionViewCell {
         
         layer.cornerRadius = 8
         layer.borderWidth = 2
+        
+        if isSelected {
+            animateSelect()
+        }
+        
         if isDisabled {
             backgroundColor = .systemGray
             layer.borderColor = UIColor.systemMint.cgColor
@@ -52,6 +57,22 @@ final class CurrencyCell: UICollectionViewCell {
     @objc private func toggleFavorite() {
         guard let currency = currency else { return }
         delegate?.didToggleFavorite(currency: currency)
+    }
+    
+    private func animateSelect() {
+        transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+
+        UIView.animate(withDuration: 0.25) {
+            self.transform = .identity
+        }
+
+        UIView.transition(
+            with: self,
+            duration: 0.3,
+            options: .transitionCrossDissolve
+        ) {
+            self.backgroundColor = .systemMint
+        }
     }
 }
 

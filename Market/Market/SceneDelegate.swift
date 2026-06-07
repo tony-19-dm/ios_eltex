@@ -13,13 +13,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = openRootViewController()
+        window?.rootViewController = SplashScreenViewController()
         
         window?.makeKeyAndVisible()
     }
 }
 
-private extension SceneDelegate {
+extension SceneDelegate {
     func openRootViewController() -> UIViewController {
         let tabBarController = UITabBarController()
         
@@ -41,7 +41,16 @@ private extension SceneDelegate {
             tag: 1
         )
         
-        tabBarController.viewControllers = [historyNavigationController, tradeNavigationController]
+        let graphViewController = GraphViewController()
+        graphViewController.title = "График"
+        let graphNavigationController = UINavigationController(rootViewController: graphViewController)
+        graphNavigationController.tabBarItem = UITabBarItem(
+            title: "График",
+            image: UIImage(systemName: "chart.line.uptrend.xyaxis"),
+            tag: 2
+        )
+        
+        tabBarController.viewControllers = [historyNavigationController, tradeNavigationController, graphNavigationController]
         
         return tabBarController
     }
