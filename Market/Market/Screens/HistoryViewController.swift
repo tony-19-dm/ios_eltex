@@ -10,7 +10,19 @@ import UIKit
 final class HistoryViewController: UIViewController {
     private let controlsView = ControlsView()
     
-    private var tradeBot = TradeBot()
+    let wallet = Wallet()
+    
+    lazy var bots = [
+        GCDBot(name: "BotBtcMaster", first: "BTC", second: "USD", wallet: wallet),
+        GCDBot(name: "BotSuperBitcoin", first: "BTC", second: "USD", wallet: wallet),
+        GCDBot(name: "BotBTCUSD", first: "BTC", second: "USD", wallet: wallet),
+        GCDBot(name: "BotCryptoGenius", first: "BTC", second: "USD", wallet: wallet),
+        GCDBot(name: "BotBtcMaestro", first: "BTC", second: "USD", wallet: wallet),
+        GCDBot(name: "BotRUBETH", first: "RUB", second: "ETH", wallet: wallet),
+        GCDBot(name: "BotFiatToEth", first: "RUB", second: "ETH", wallet: wallet),
+        GCDBot(name: "BotEthMaster", first: "RUB", second: "ETH", wallet: wallet)
+    ]
+    
     private var startBalanse: Double = .zero
     private var totalBalance: Double = .zero
     
@@ -22,7 +34,7 @@ final class HistoryViewController: UIViewController {
         }
     }
     
-    private var history: [TradeOperatiion] = [] {
+    private var botResults: [TradeResult] = [] {
         didSet {
             controlsView.tableView.reloadData()
         }
@@ -45,8 +57,9 @@ final class HistoryViewController: UIViewController {
         setupTableView()
         bindActions()
         
-        initBot()
         controlsView.showEmptyState()
+        
+        setupSwipe()
     }
 }
 
@@ -91,36 +104,34 @@ private extension HistoryViewController {
 
 // MARK: - Logic
 private extension HistoryViewController {
-    func initBot() {
-        startBalanse = tradeBot.balance
-        totalBalance = tradeBot.balance
-        
-        let totalIncome = totalBalance - startBalanse
-        let incomePersent = totalIncome / startBalanse * 100
-        
-        controlsView.configure(
-            balance: tradeBot.returnStringBalance(),
-            currency: tradeBot.getCurrency(),
-            income: "+ \(totalIncome.formatToString()) (\(incomePersent.formatToString())%)"
-        )
-    }
-    
     func run() {
-        startBalanse = tradeBot.balance
-        
-        history = tradeBot.generateHistory()
-        totalBalance = tradeBot.balance
-        
-        let totalIncome = totalBalance - startBalanse
-        let incomePersent = totalIncome / startBalanse * 100
-        
-        controlsView.configure(
-            balance: tradeBot.returnStringBalance(),
-            currency: tradeBot.getCurrency(),
-            income: "+ \(totalIncome.formatToString()) (\(incomePersent.formatToString())%)"
-        )
+        botResults = generateBotsHistory()
         
         controlsView.showData()
+    }
+    
+    func generateBotsHistory() -> [TradeResult] {
+        var results: [TradeResult] = []
+        
+        let group = DispatchGroup()
+        let lock = NSLock()
+        
+        for bot in bots {
+            group.enter()
+            
+            DispatchQueue.global().async {
+                let result = bot.start(day: AppConfig.days)
+                
+                lock.lock()
+                results.append(result)
+                lock.unlock()
+                
+                group.leave()
+            }
+        }
+    
+        group.wait()
+        return results
     }
     
     func updateCurrencyUI() {
@@ -132,41 +143,35 @@ private extension HistoryViewController {
 // MARK: - TableView
 extension HistoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        history.count
+        botResults.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: HistoryCell.identifier) as? HistoryCell {
-            cell.currentOperatiion = history[indexPath.row]
+            cell.result = botResults[indexPath.row]
             return cell
         }
-        
         return UITableViewCell()
     }
 }
 
 // MARK: - Actions
 private extension HistoryViewController {
-    @objc private func resetTapped() {
+    @objc func resetTapped() {
         currencyService.resetSelection()
-            
-        tradeBot.reset()
-        
-        history = []
         controlsView.showEmptyState()
-        
-        initBot()
+        wallet.resetWallet()
     }
     
-    @objc private func randomTapped() {
+    @objc func randomTapped() {
         currencyService.randomPair()
-            
-        tradeBot.reset()
-        
-        history = []
         controlsView.showEmptyState()
-        
-        initBot()
+    }
+    
+    @objc private func openWallet() {
+        let vc = WalletViewController(wallet: wallet)
+        vc.modalPresentationStyle = .pageSheet
+        present(vc, animated: true)
     }
 }
 
@@ -180,20 +185,20 @@ private extension HistoryViewController {
             action: #selector(resetTapped)
         )
         
-        let randomButton = UIBarButtonItem(
-            image: UIImage(systemName: "shuffle"),
+        let walletButton = UIBarButtonItem(
+            image: UIImage(systemName: "wallet.bifold"),
             style: .plain,
             target: self,
-            action: #selector(randomTapped)
+            action: #selector(openWallet)
         )
-        
+            
+        navigationItem.rightBarButtonItem = walletButton
         navigationItem.leftBarButtonItem = resetButton
-        navigationItem.rightBarButtonItem = randomButton
     }
 }
 
 private extension HistoryViewController {
-    private func openCurrencySelector(selectingFirst: Bool) {
+    func openCurrencySelector(selectingFirst: Bool) {
         currencyService.isSelectingFirst = selectingFirst
         
         let vc = ShortCurrencyPairViewController(currencyService: currencyService)
@@ -201,5 +206,18 @@ private extension HistoryViewController {
         vc.modalPresentationStyle = .pageSheet
         
         present(UINavigationController(rootViewController: vc), animated: true)
+    }
+}
+
+private extension HistoryViewController {
+    func setupSwipe() {
+        let swipe = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeUp))
+        swipe.direction = .up
+        
+        view.addGestureRecognizer(swipe)
+    }
+    
+    @objc private func handleSwipeUp() {
+        tabBarController?.selectedIndex = 2
     }
 }
