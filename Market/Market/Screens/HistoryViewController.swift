@@ -47,6 +47,8 @@ final class HistoryViewController: UIViewController {
         
         initBot()
         controlsView.showEmptyState()
+        
+        setupSwipe()
     }
 }
 
@@ -147,7 +149,7 @@ extension HistoryViewController: UITableViewDataSource {
 
 // MARK: - Actions
 private extension HistoryViewController {
-    @objc private func resetTapped() {
+    @objc func resetTapped() {
         currencyService.resetSelection()
             
         tradeBot.reset()
@@ -158,7 +160,7 @@ private extension HistoryViewController {
         initBot()
     }
     
-    @objc private func randomTapped() {
+    @objc func randomTapped() {
         currencyService.randomPair()
             
         tradeBot.reset()
@@ -193,7 +195,7 @@ private extension HistoryViewController {
 }
 
 private extension HistoryViewController {
-    private func openCurrencySelector(selectingFirst: Bool) {
+    func openCurrencySelector(selectingFirst: Bool) {
         currencyService.isSelectingFirst = selectingFirst
         
         let vc = ShortCurrencyPairViewController(currencyService: currencyService)
@@ -201,5 +203,18 @@ private extension HistoryViewController {
         vc.modalPresentationStyle = .pageSheet
         
         present(UINavigationController(rootViewController: vc), animated: true)
+    }
+}
+
+private extension HistoryViewController {
+    func setupSwipe() {
+        let swipe = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeUp))
+        swipe.direction = .up
+        
+        view.addGestureRecognizer(swipe)
+    }
+    
+    @objc private func handleSwipeUp() {
+        tabBarController?.selectedIndex = 2
     }
 }
