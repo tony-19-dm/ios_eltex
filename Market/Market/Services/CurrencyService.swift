@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-enum CurrencyType {
+enum CurrencyType: CaseIterable {
     case fiat
     case crypto
 }
@@ -22,9 +22,16 @@ struct TradeCurrency: Hashable {
 final class CurrencyGenerator {
     static func generate(count: Int) -> [TradeCurrency] {
         var result: [TradeCurrency] = []
+        var usedNames: Set<String> = []
+        
         for _ in 0..<count {
             let name = randomName()
-            let type: CurrencyType = Bool.random() ? .fiat : .crypto
+            
+            guard !usedNames.contains(name),
+                  let type = CurrencyType.allCases.randomElement()
+            else { continue }
+            
+            usedNames.insert(name)
             let rate: Double = Double.random(in: 0.001...1000)
             result.append(TradeCurrency(name: name, type: type, rate: rate))
         }
@@ -46,15 +53,90 @@ final class CurrencyService: NSObject {
     var filteredCurrencies: [TradeCurrency] = []
     var favorites: Set<String> = []
     
-    var currentFilter: CurrencyType? = nil
+    var currentFilter: CurrencyType?
+    var apiOnlyMode: Bool = false
+    
     private var observers: [UUID: () -> Void] = [:]
+    
+    private let apiService = CurrencyAPIService()
     
     override init() {
         super.init()
-        currencies = CurrencyGenerator.generate(count: 102)
-        filteredCurrencies = currencies
-        
+        loadDefaultCurrencies()
+        loadAPICurrencies()
         randomFavorites()
+        applyFilter()
+    }
+    
+    private func loadDefaultCurrencies() {
+        currencies = [
+            TradeCurrency(name: "USD", type: .fiat, rate: 1.0),
+            TradeCurrency(name: "EUR", type: .fiat, rate: 0.92),
+            TradeCurrency(name: "RUB", type: .fiat, rate: 92.0),
+            TradeCurrency(name: "GBP", type: .fiat, rate: 0.79),
+            TradeCurrency(name: "JPY", type: .fiat, rate: 155.0),
+            TradeCurrency(name: "CNY", type: .fiat, rate: 7.2),
+            TradeCurrency(name: "BTC", type: .crypto, rate: 68000),
+            TradeCurrency(name: "ETH", type: .crypto, rate: 3200),
+            TradeCurrency(name: "BNB", type: .crypto, rate: 580),
+            TradeCurrency(name: "SOL", type: .crypto, rate: 145),
+            TradeCurrency(name: "XRP", type: .crypto, rate: 0.52),
+            TradeCurrency(name: "DOGE", type: .crypto, rate: 0.14)
+        ]
+
+        filteredCurrencies = currencies
+    }
+    
+    func loadAPICurrencies() {
+        let pairs = [("USD","EUR"), ("USD","RUB"), ("EUR","USD")]
+
+        for pair in pairs {
+            apiService.fetchRate(from: pair.0, to: pair.1) { [weak self] result in
+                guard let self else { return }
+
+                if case let .success(rate) = result {
+                    let newCurrency = TradeCurrency(
+                        name: pair.1,
+                        type: .fiat,
+                        rate: rate
+                    )
+
+                    if !self.currencies.contains(where: { $0.name == newCurrency.name }) {
+                        self.currencies.append(newCurrency)
+                    }
+
+                    self.filteredCurrencies = self.currencies
+                    self.notify()
+                }
+            }
+        }
+    }
+    
+    func apiOnly() {
+        filteredCurrencies = currencies.filter { $0.name.count == 3 }
+        notify()
+    }
+
+    func all() {
+        filteredCurrencies = currencies
+        notify()
+    }
+    
+    func applyAPIOnlyMode() {
+        if apiOnlyMode {
+            filteredCurrencies = currencies.filter { $0.type == .fiat || $0.type == .crypto }
+        } else {
+            filteredCurrencies = currencies
+        }
+        notify()
+    }
+    
+    func loadCurrencies(from list: [String]) {
+        currencies = list.map {
+            TradeCurrency(name: $0, type: .fiat, rate: Double.random(in: 0.5...2))
+        }
+        filteredCurrencies = currencies
+        notify()
     }
     
     func applyFilter(type: CurrencyType? = nil, favoritesOnly: Bool = false) {

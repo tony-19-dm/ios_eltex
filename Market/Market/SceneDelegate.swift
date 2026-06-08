@@ -13,17 +13,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = openRootViewController()
+        window?.rootViewController = SplashScreenViewController()
         
         window?.makeKeyAndVisible()
     }
 }
 
-private extension SceneDelegate {
+extension SceneDelegate {
     func openRootViewController() -> UIViewController {
+        let wallet = Wallet()
+        
         let tabBarController = UITabBarController()
         
-        let historyViewController = HistoryViewController()
+        let historyViewController = HistoryViewController(wallet: wallet)
         historyViewController.title = "История"
         let historyNavigationController = UINavigationController(rootViewController: historyViewController)
         historyNavigationController.tabBarItem = UITabBarItem(
@@ -32,16 +34,16 @@ private extension SceneDelegate {
             tag: 0
         )
         
-        let tradeViewController = TradeViewController()
-        tradeViewController.title = "Торговля"
-        let tradeNavigationController = UINavigationController(rootViewController: tradeViewController)
-        tradeNavigationController.tabBarItem = UITabBarItem(
-            title: "Торговля",
-            image: UIImage(systemName: "rublesign.arrow.trianglehead.counterclockwise.rotate.90"),
+        let graphViewController = GraphViewController()
+        graphViewController.title = "График"
+        let graphNavigationController = UINavigationController(rootViewController: graphViewController)
+        graphNavigationController.tabBarItem = UITabBarItem(
+            title: "График",
+            image: UIImage(systemName: "chart.line.uptrend.xyaxis"),
             tag: 1
         )
         
-        tabBarController.viewControllers = [historyNavigationController, tradeNavigationController]
+        tabBarController.viewControllers = [historyNavigationController, graphNavigationController]
         
         return tabBarController
     }
